@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flappy Bird</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:#0d1b24;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100dvh;
+  font-family:Arial,sans-serif;
+  overflow:hidden;
+}
+canvas{
+  width:min(100vw, 420px);
+  height:auto;
+  border:3px solid #000;
+  border-radius:12px;
+  touch-action:none;
+  box-shadow:0 0 30px rgba(0,0,0,0.6);
+}
+
+/* ===== Telas de UI ===== */
+#nicknameScreen, #configScreen, #habilidadesScreen, #presenteScreen{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.80);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:100;
+}
+.box{
+  background:#07374a;
+  padding:26px 22px;
+  border-radius:18px;
+  width:min(92vw,350px);
+  text-align:center;
+  box-shadow:0 10px 40px rgba(0,0,0,0.5);
+  border:2px solid #1a6b8a;
+  max-height:90vh;
+  overflow-y:auto;
+}
+.box h2{
+  color:white;
+  font-size:22px;
+  margin-bottom:8px;
+}
+.box p{
+  color:#a8d8e8;
+  font-size:14px;
+  margin-bottom:14px;
+  line-height:1.4;
+}
+#nicknameInput{
+  width:100%;
+  padding:13px;
+  font-size:17px;
+  border:none;
+  border-radius:10px;
+  outline:none;
+  text-align:center;
+  background:#0f4a63;
+  color:white;
+  margin-bottom:14px;
+}
+.btn{
+  width:100%;
+  padding:13px;
+  font-size:16px;
+  font-weight:bold;
+  border:none;
+  border-radius:10px;
+  color:white;
+  cursor:pointer;
+  margin-bottom:9px;
+  transition:0.2s;
+}
+.btn:active{transform:scale(0.97);}
+.btn-green{background:#27b84c;}
+.btn-green:hover{background:#22a043;}
+.btn-blue{background:#168bf2;}
+.btn-blue:hover{background:#1276d1;}
+.btn-red{background:#e74c3c;}
+.btn-red:hover{background:#c0392b;}
+.btn-purple{background:#9b59b6;}
+.btn-purple:hover{background:#8e44ad;}
+.btn-orange{background:#e67e22;}
+.btn-orange:hover{background:#d35400;}
+.btn-gray{background:#555;}
+.btn-gray:hover{background:#444;}
+.warning{
+  background:#3a1a1a;
+  color:#ff8a8a;
+  padding:11px;
+  border-radius:10px;
+  font-size:13px;
+  margin:10px 0 14px 0;
+  border:1px solid #c0392b;
+}
+.hab-card{
+  background:#0f4a63;
+  border-radius:12px;
+  padding:14px;
+  margin-bottom:12px;
+  text-align:left;
+  border:2px solid #1a6b8a;
+}
+.hab-card h3{
+  color:#fff;
+  font-size:17px;
+  margin-bottom:4px;
+}
+.hab-card p{
+  color:#a8d8e8;
+  font-size:13px;
+  margin-bottom:8px;
+}
+.hab-card .duracao{
+  color:#ffdc35;
+  font-size:13px;
+  font-weight:bold;
+}
+</style>
+</head>
+<body>
+
+<canvas id="gameCanvas" width="720" height="1280"></canvas>
+
+<!-- Nickname -->
+<div id="nicknameScreen">
+  <div class="box">
+    <h2>Escolha seu Nick</h2>
+    <p>Esse nome vai aparecer no ranking global</p>
+    <input type="text" id="nicknameInput" maxlength="12" placeholder="Digite seu nome..." autocomplete="off">
+    <button class="btn btn-green" id="saveNameBtn">Salvar</button>
+  </div>
+</div>
+
+<!-- Configurações -->
+<div id="configScreen">
+  <div class="box">
+    <h2>⚙️ Configurações</h2>
+    <button class="btn btn-blue" id="changeNickBtn">Trocar Nickname</button>
+    <div class="warning">
+      ⚠️ Se você resetar, perderá tudo<br>(moedas, skins e progresso)
+    </div>
+    <button class="btn btn-red" id="resetGameBtn">Resetar Game</button>
+    <button class="btn btn-gray" id="closeConfigBtn">Fechar</button>
+  </div>
+</div>
+
+<!-- Habilidades -->
+<div id="habilidadesScreen">
+  <div class="box">
+    <h2>⚡ Habilidades</h2>
+    <p>Compre e use poderes especiais durante o jogo</p>
+
+    <div class="hab-card">
+      <h3>🚀 Super</h3>
+      <p>Fica mais rápido + Imunidade total</p>
+      <div class="duracao">Duração: 10 segundos</div>
+      <br>
+      <button class="btn btn-green" id="buySuperBtn" style="margin:0">Comprar - 50 🪙</button>
+    </div>
+
+    <div class="hab-card" style="border-color:#9b59b6">
+      <h3>❓ ??? (Secreta)</h3>
+      <p>Habilidade misteriosa e muito forte</p>
+      <div class="duracao">Duração: 60s imunidade + 30s velocidade</div>
+      <br>
+      <button class="btn btn-purple" id="secretBtn" style="margin:0" disabled>Bloqueada</button>
+    </div>
+
+    <button class="btn btn-gray" id="closeHabBtn">Fechar</button>
+  </div>
+</div>
+
+<!-- Presente Secreto -->
+<div id="presenteScreen">
+  <div class="box">
+    <h2>🎁 Presente Disponível!</h2>
+    <p>Você ficou em <b>1º lugar</b> no ranking!<br>Resgate sua habilidade secreta:</p>
+    
+    <div class="hab-card" style="border-color:#9b59b6; text-align:center">
+      <h3 style="font-size:28px">❓ ???</h3>
+      <p>Habilidade Secreta</p>
+      <div class="duracao">Imunidade 60s + Velocidade 30s</div>
+    </div>
+
+    <button class="btn btn-purple" id="resgatarPresenteBtn">Resgatar Presente</button>
+    <button class="btn btn-gray" id="closePresenteBtn">Depois</button>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCoTiUZODa09myjID6ueTqXmabUgjcJhWo",
+  authDomain: "oxiii-21590.firebaseapp.com",
+  projectId: "oxiii-21590",
+  storageBucket: "oxiii-21590.firebasestorage.app",
+  messagingSenderId: "719460323446",
+  appId: "1:719460323446:web:771a8273cc8cc6c14fcf57",
+  measurementId: "G-RZK3J4QQFK"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// ================== CONFIG ==================
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+ctx.imageSmoothingEnabled = true;
+ctx.imageSmoothingQuality = "high";
+
+const SCALE = 2;
+const W = 360;
+const H = 640;
+
+const birdImg = new Image();
+birdImg.src = "bird2.png";
+
+const jumpSound = new Audio("voar.flac");
+const scoreSound = new Audio("point.flac");
+const hitSound = new Audio("die.flac");
+
+const skins = [
+  {name:"Amarelo", color:"#ffd52a", price:0},
+  {name:"Vermelho", color:"#ff4545", price:5},
+  {name:"Azul", color:"#2196ff", price:10},
+  {name:"Verde", color:"#71e52d", price:15},
+  {name:"Roxo", color:"#c34cff", price:25},
+  {name:"Preto", color:"#30343b", price:40},
+  {name:"Black Bird", color:"#111111", price:50, special:"black"},
+  {name:"Rainbow Bird", color:"#ff00ff", price:100, special:"rainbow"},
+  {name:"Bird Hacker", color:"#00ff41", price:200, special:"hacker"}
+];
+
+function load(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v === null ? fallback : JSON.parse(v);
+  } catch(e) { return fallback; }
+}
+
+let coins = Math.max(0, Number(load("flappyCoins", 0)) || 0);
+let owned = load("flappyOwned", [0]);
+if (!Array.isArray(owned)) owned = [0];
+owned = [...new Set([0, ...owned.filter(i => Number.isInteger(i) && i >= 0 && i < skins.length)])];
+
+let selected = Number(load("flappySelected", 0));
+if (!owned.includes(selected)) selected = 0;
+
+let playerName = load("flappyName", "");
+let hasSuper = load("flappyHasSuper", false);
+let hasSecret = load("flappyHasSecret", false);
+let secretClaimed = load("flappySecretClaimed", false);
+
+// Poderes ativos
+let superActive = false;
+let superTimer = 0;
+let secretActive = false;
+let secretTimer = 0;
+let speedBoost = false;
+
+function save() {
+  localStorage.setItem("flappyCoins", JSON.stringify(coins));
+  localStorage.setItem("flappyOwned", JSON.stringify(owned));
+  localStorage.setItem("flappySelected", JSON.stringify(selected));
+  localStorage.setItem("flappyName", JSON.stringify(playerName));
+  localStorage.setItem("flappyHasSuper", JSON.stringify(hasSuper));
+  localStorage.setItem("flappyHasSecret", JSON.stringify(hasSecret));
+  localStorage.setItem("flappySecretClaimed", JSON.stringify(secretClaimed));
+}
+
+// ========== UI ==========
+const nicknameScreen = document.getElementById("nicknameScreen");
+const nicknameInput = document.getElementById("nicknameInput");
+const saveNameBtn = document.getElementById("saveNameBtn");
+const configScreen = document.getElementById("configScreen");
+const habilidadesScreen = document.getElementById("habilidadesScreen");
+const presenteScreen = document.getElementById("presenteScreen");
+
+function mostrarTelaNickname() {
+  nicknameScreen.style.display = "flex";
+  nicknameInput.value = playerName || "";
+  setTimeout(() => nicknameInput.focus(), 100);
+}
+function esconderTelaNickname() { nicknameScreen.style.display = "none"; }
+function mostrarConfig() { configScreen.style.display = "flex"; }
+function esconderConfig() { configScreen.style.display = "none"; }
+function mostrarHabilidades() {
+  atualizarBotoesHab();
+  habilidadesScreen.style.display = "flex";
+}
+function esconderHabilidades() { habilidadesScreen.style.display = "none"; }
+function mostrarPresente() { presenteScreen.style.display = "flex"; }
+function esconderPresente() { presenteScreen.style.display = "none"; }
+
+function atualizarBotoesHab() {
+  const buyBtn = document.getElementById("buySuperBtn");
+  const secretBtn = document.getElementById("secretBtn");
+
+  if (hasSuper) {
+    buyBtn.textContent = "✅ Desbloqueada";
+    buyBtn.disabled = true;
+    buyBtn.style.background = "#555";
+  } else {
+    buyBtn.textContent = "Comprar - 50 🪙";
+    buyBtn.disabled = false;
+    buyBtn.style.background = "#27b84c";
+  }
+
+  if (hasSecret) {
+    secretBtn.textContent = "✅ Desbloqueada";
+    secretBtn.disabled = true;
+    secretBtn.style.background = "#555";
+  } else {
+    secretBtn.textContent = "Bloqueada";
+    secretBtn.disabled = true;
+  }
+}
+
+saveNameBtn.onclick = () => {
+  const nome = nicknameInput.value.trim();
+  if (nome.length < 1) return alert("Digite um nome!");
+  playerName = nome.substring(0, 12);
+  save();
+  esconderTelaNickname();
+};
+nicknameInput.onkeydown = (e) => { if (e.key === "Enter") saveNameBtn.click(); };
+
+document.getElementById("changeNickBtn").onclick = () => {
+  esconderConfig();
+  mostrarTelaNickname();
+};
+document.getElementById("resetGameBtn").onclick = () => {
+  if (confirm("Tem certeza? Você vai perder TUDO!")) {
+    localStorage.clear();
+    location.reload();
+  }
+};
+document.getElementById("closeConfigBtn").onclick = esconderConfig;
+document.getElementById("closeHabBtn").onclick = esconderHabilidades;
+
+document.getElementById("buySuperBtn").onclick = () => {
+  if (hasSuper) return;
+  if (coins < 50) return alert("Moedas insuficientes!");
+  coins -= 50;
+  hasSuper = true;
+  save();
+  atualizarBotoesHab();
+  alert("🚀 Super desbloqueada!");
+};
+
+document.getElementById("resgatarPresenteBtn").onclick = () => {
+  hasSecret = true;
+  secretClaimed = true;
+  save();
+  esconderPresente();
+  alert("🎉 Habilidade Secreta desbloqueada!\nImunidade 60s + Velocidade 30s");
+};
+document.getElementById("closePresenteBtn").onclick = esconderPresente;
+
+// ================== JOGO ==================
+let state = "menu";
+let shopScroll = 0;
+let ranking = [];
+let rankingLoading = false;
+let isTop1 = false;
+
+// Countdown semanal (reseta a cada domingo)
+function getWeekEnd() {
+  const now = new Date();
+  const day = now.getDay(); // 0 = domingo
+  const daysUntilSunday = day === 0 ? 7 : 7 - day;
+  const end = new Date(now);
+  end.setDate(now.getDate() + daysUntilSunday);
+  end.setHours(23, 59, 59, 999);
+  return end;
+}
+
+function getCountdownText() {
+  const end = getWeekEnd();
+  const diff = end - new Date();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  if (days > 1) return `Acaba em ${days} dias`;
+  if (days === 1) return `Acaba em 1 dia e ${hours}h`;
+  return `Acaba em ${hours} horas`;
+}
+
+let bird = {x:60, y:300, size:34, vel:0, gravity:0.2, jump:-5.2, rotation:0};
+let pipes = [], score = 0;
+const pipeGap = 155, pipeWidth = 60;
+let pipeSpeed = 2.1;
+
+function sound(a) {
+  a.currentTime = 0;
+  a.play().catch(()=>{});
+}
+
+function rect(x, y, w, h, r, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.roundRect(x * SCALE, y * SCALE, w * SCALE, h * SCALE, r * SCALE);
+  ctx.fill();
+}
+
+function background() {
+  ctx.fillStyle = "#70c5ce";
+  ctx.fillRect(0, 0, W * SCALE, H * SCALE);
+  ctx.fillStyle = "#a5e5e8";
+  for (let i = 0; i < 6; i++) {
+    ctx.beginPath();
+    ctx.arc(i * 75 * SCALE, 565 * SCALE, 40 * SCALE, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.fillStyle = "#ded895";
+  ctx.fillRect(0, 590 * SCALE, W * SCALE, 50 * SCALE);
+  ctx.fillStyle = "#82cf42";
+  ctx.fillRect(0, 590 * SCALE, W * SCALE, 10 * SCALE);
+}
+
+function drawBird(x, y, size, index, rotation = 0) {
+  ctx.save();
+  ctx.translate((x + size / 2) * SCALE, (y + size / 2) * SCALE);
+  ctx.rotate(rotation);
+  const s = size * SCALE;
+  const skin = skins[index];
+
+  if (skin.special === "rainbow") {
+    const time = Date.now() / 300;
+    const gradient = ctx.createLinearGradient(-s/2, -s/2, s/2, s/2);
+    for (let i = 0; i <= 4; i++) {
+      gradient.addColorStop(i/4, `hsl(${(time*40 + i*60)%360}, 100%, 55%)`);
+    }
+    ctx.fillStyle = gradient;
+    ctx.strokeStyle = "#222";
+    ctx.lineWidth = 2 * SCALE;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, s*0.43, s*0.34, 0, 0, Math.PI*2);
+    ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = "#fff";
+    ctx.beginPath(); ctx.arc(s*0.18, -s*0.12, s*0.18, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#111";
+    ctx.beginPath(); ctx.arc(s*0.23, -s*0.12, s*0.07, 0, Math.PI*2); ctx.fill();
+
+    ctx.fillStyle = "#ff773b";
+    ctx.beginPath();
+    ctx.moveTo(s*0.28, s*0.02); ctx.lineTo(s*0.62, s*0.12); ctx.lineTo(s*0.28, s*0.2);
+    ctx.closePath(); ctx.fill(); ctx.stroke();
+
+    ctx.fillStyle = "rgba(255,255,255,0.4)";
+    ctx.beginPath(); ctx.ellipse(-s*0.12, s*0.12, s*0.19, s*0.10, -0.3, 0, Math.PI*2); ctx.fill(); ctx.stroke();
+  }
+  else if (skin.special === "black") {
+    ctx.fillStyle = "#111"; ctx.strokeStyle = "#000"; ctx.lineWidth = 2*SCALE;
+    ctx.beginPath(); ctx.ellipse(0,0,s*0.43,s*0.34,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(s*0.18,-s*0.12,s*0.18,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#111"; ctx.beginPath(); ctx.arc(s*0.23,-s*0.12,s*0.07,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#444";
+    ctx.beginPath(); ctx.moveTo(s*0.28,s*0.02); ctx.lineTo(s*0.62,s*0.12); ctx.lineTo(s*0.28,s*0.2); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#222";
+    ctx.beginPath(); ctx.ellipse(-s*0.12,s*0.12,s*0.19,s*0.10,-0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
+  }
+  else if (skin.special === "hacker") {
+    ctx.fillStyle = "#0a0a0a"; ctx.strokeStyle = "#00ff41"; ctx.lineWidth = 2*SCALE;
+    ctx.beginPath(); ctx.ellipse(0,0,s*0.43,s*0.34,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#00ff41"; ctx.font = `${Math.floor(s*0.13)}px monospace`; ctx.textAlign = "center";
+    ["01","10","11","00","101","010"].forEach((b,i) => {
+      const a = (i/6)*Math.PI*2;
+      ctx.fillText(b, Math.cos(a)*s*0.18, Math.sin(a)*s*0.12 + 3);
+    });
+    ctx.fillStyle = "#ff0033"; ctx.beginPath(); ctx.arc(s*0.18,-s*0.12,s*0.16,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#ff5555"; ctx.beginPath(); ctx.arc(s*0.20,-s*0.14,s*0.06,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#00ff41";
+    ctx.beginPath(); ctx.moveTo(s*0.28,s*0.02); ctx.lineTo(s*0.62,s*0.12); ctx.lineTo(s*0.28,s*0.2); ctx.closePath(); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = "#003311";
+    ctx.beginPath(); ctx.ellipse(-s*0.12,s*0.12,s*0.19,s*0.10,-0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
+
+    // Código subindo
+    ctx.fillStyle = "rgba(0,255,65,0.7)";
+    ctx.font = `${Math.floor(s*0.11)}px monospace`;
+    const time = Date.now()/400;
+    for (let i=0;i<5;i++){
+      const offset = (time + i*0.7)%2.5;
+      ctx.globalAlpha = 1 - offset/2.5;
+      ctx.fillText(Math.random()>0.5?"1":"0", (i-2)*s*0.13, -s*0.45 - offset*s*0.35);
+    }
+    ctx.globalAlpha = 1;
+  }
+  else {
+    if (index === 0 && birdImg.complete && birdImg.naturalWidth > 0) {
+      ctx.drawImage(birdImg, -s/2, -s/2, s, s);
+    } else {
+      ctx.fillStyle = skin.color; ctx.strokeStyle = "#222"; ctx.lineWidth = 2*SCALE;
+      ctx.beginPath(); ctx.ellipse(0,0,s*0.43,s*0.34,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(s*0.18,-s*0.12,s*0.18,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#111"; ctx.beginPath(); ctx.arc(s*0.23,-s*0.12,s*0.07,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = "#ff773b";
+      ctx.beginPath(); ctx.moveTo(s*0.28,s*0.02); ctx.lineTo(s*0.62,s*0.12); ctx.lineTo(s*0.28,s*0.2); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = "#fff";
+      ctx.beginPath(); ctx.ellipse(-s*0.12,s*0.12,s*0.19,s*0.10,-0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+function drawPipes() {
+  pipes.forEach(p => {
+    ctx.fillStyle = "#399e25";
+    ctx.fillRect(p.x*SCALE, 0, pipeWidth*SCALE, p.top*SCALE);
+    ctx.fillRect(p.x*SCALE, p.bottom*SCALE, pipeWidth*SCALE, (H-p.bottom)*SCALE);
+    ctx.fillStyle = "#70d84a";
+    ctx.fillRect((p.x+8)*SCALE, 0, 12*SCALE, p.top*SCALE);
+    ctx.fillRect((p.x+8)*SCALE, p.bottom*SCALE, 12*SCALE, (H-p.bottom)*SCALE);
+    ctx.fillStyle = "#24751d";
+    ctx.fillRect((p.x-4)*SCALE, (p.top-16)*SCALE, (pipeWidth+8)*SCALE, 16*SCALE);
+    ctx.fillRect((p.x-4)*SCALE, p.bottom*SCALE, (pipeWidth+8)*SCALE, 16*SCALE);
+  });
+}
+
+function createPipe() {
+  const top = Math.random()*250 + 50;
+  pipes.push({x:360, top, bottom:top+pipeGap, counted:false});
+}
+setInterval(() => { if (state === "playing") createPipe(); }, 1800);
+
+function reset() {
+  if (!playerName) {
+    mostrarTelaNickname();
+    return;
+  }
+  bird.y = 300; bird.vel = 0; bird.rotation = 0;
+  pipes = []; score = 0;
+  pipeSpeed = 2.1;
+  superActive = false; superTimer = 0;
+  secretActive = false; secretTimer = 0;
+  speedBoost = false;
+  state = "playing";
+
+  // Pergunta se quer usar Super
+  if (hasSuper && confirm("Usar habilidade SUPER nesta partida?\n(+velocidade + imunidade 10s)")) {
+    superActive = true;
+    superTimer = 10;
+    speedBoost = true;
+    pipeSpeed = 3.4;
+  }
+}
+
+// ================== RANKING ==================
+async function enviarPontuacao(pontos) {
+  if (!playerName) return;
+  try {
+    const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(30));
+    const snapshot = await getDocs(q);
+    let melhor = 0;
+    snapshot.forEach(doc => {
+      const d = doc.data();
+      if (d.name === playerName && d.score > melhor) melhor = d.score;
+    });
+    if (pontos > melhor) {
+      await addDoc(collection(db, "scores"), {
+        name: playerName,
+        score: pontos,
+        date: new Date()
+      });
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function carregarRanking() {
+  rankingLoading = true;
+  ranking = [];
+  try {
+    const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(40));
+    const snapshot = await getDocs(q);
+    const melhores = {};
+    snapshot.forEach(doc => {
+      const d = doc.data();
+      if (!melhores[d.name] || d.score > melhores[d.name].score) melhores[d.name] = d;
+    });
+    ranking = Object.values(melhores).sort((a,b) => b.score - a.score).slice(0, 10);
+
+    // Verifica se o jogador é top 1
+    isTop1 = ranking.length > 0 && ranking[0].name === playerName;
+
+    // Se for top 1 e ainda não resgatou o presente
+    if (isTop1 && !secretClaimed && !hasSecret) {
+      setTimeout(() => mostrarPresente(), 600);
+    }
+  } catch(e) { console.error(e); }
+  rankingLoading = false;
+}
+
+// ================== TELAS ==================
+function menu() {
+  background();
+  ctx.textAlign = "center";
+  ctx.font = `bold ${34*SCALE}px Arial`;
+  ctx.lineWidth = 4*SCALE;
+  ctx.strokeStyle = "#222";
+  ctx.fillStyle = "#fff";
+  ctx.strokeText("FLAPPY BIRD", 180*SCALE, 90*SCALE);
+  ctx.fillText("FLAPPY BIRD", 180*SCALE, 90*SCALE);
+
+  drawBird(145, 125, 52, selected);
+
+  // Config
+  rect(300, 10, 48, 40, 10, "#164c64");
+  ctx.fillStyle = "#fff";
+  ctx.font = `${20*SCALE}px Arial`;
+  ctx.fillText("⚙️", 324*SCALE, 38*SCALE);
+
+  // Botões
+  rect(20, 220, 320, 46, 12, "#169e36");
+  rect(24, 224, 312, 38, 9, "#35d354");
+
+  rect(20, 275, 320, 46, 12, "#075ba8");
+  rect(24, 279, 312, 38, 9, "#168bf2");
+
+  rect(20, 330, 320, 46, 12, "#c77d00");
+  rect(24, 334, 312, 38, 9, "#ffb300");
+
+  rect(20, 385, 320, 46, 12, "#8e44ad");
+  rect(24, 389, 312, 38, 9, "#9b59b6");
+
+  ctx.fillStyle = "#fff";
+  ctx.font = `bold ${20*SCALE}px Arial`;
+  ctx.fillText("INICIAR", 180*SCALE, 250*SCALE);
+  ctx.fillText("🛒 LOJA", 180*SCALE, 305*SCALE);
+  ctx.fillText("🏆 TOP GLOBAL", 180*SCALE, 360*SCALE);
+  ctx.fillText("⚡ HABILIDADES", 180*SCALE, 415*SCALE);
+
+  ctx.font = `bold ${17*SCALE}px Arial`;
+  ctx.fillText("🪙 " + coins + " moedas", 180*SCALE, 470*SCALE);
+
+  if (playerName) {
+    ctx.font = `${14*SCALE}px Arial`;
+    ctx.fillStyle = "#cceeff";
+    ctx.fillText("Jogador: " + playerName, 180*SCALE, 500*SCALE);
+  }
+}
+
+function rankingScreen() {
+  ctx.fillStyle = "#07344b";
+  ctx.fillRect(0, 0, W*SCALE, H*SCALE);
+
+  rect(12, 12, 60, 40, 9, "#168bf2");
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#fff";
+  ctx.font = `bold ${24*SCALE}px Arial`;
+  ctx.fillText("←", 42*SCALE, 40*SCALE);
+
+  ctx.font = `bold ${24*SCALE}px Arial`;
+  ctx.fillText("TOP GLOBAL", 180*SCALE, 40*SCALE);
+
+  // Countdown
+  ctx.font = `${13*SCALE}px Arial`;
+  ctx.fillStyle = "#ffdc35";
+  ctx.fillText(getCountdownText(), 180*SCALE, 65*SCALE);
+
+  if (rankingLoading) {
+    ctx.font = `${17*SCALE}px Arial`;
+    ctx.fillStyle = "#fff";
+    ctx.fillText("Carregando...", 180*SCALE, 320*SCALE);
+    return;
+  }
+
+  if (ranking.length === 0) {
+    ctx.fillStyle = "#fff";
+    ctx.fillText("Nenhuma pontuação ainda", 180*SCALE, 320*SCALE);
+    return;
+  }
+
+  ranking.forEach((item, i) => {
+    const y = 85 + i * 46;
+    rect(14, y, 332, 40, 8, i === 0 ? "#1a6b4a" : "#11536a");
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#fff";
+    ctx.font = `bold ${15*SCALE}px Arial`;
+    ctx.fillText((i+1) + "º  " + item.name, 28*SCALE, (y+26)*SCALE);
+
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#ffdc35";
+    ctx.fillText(item.score + " pts", 332*SCALE, (y+26)*SCALE);
+  });
+}
+
+function shop() {
+  ctx.fillStyle = "#07344b";
+  ctx.fillRect(0, 0, W*SCALE, H*SCALE);
+  rect(12, 12, 60, 42, 9, "#168bf2");
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#fff";
+  ctx.font = `bold ${26*SCALE}px Arial`;
+  ctx.fillText("←", 42*SCALE, 41*SCALE);
+  ctx.font = `bold ${25*SCALE}px Arial`;
+  ctx.fillText("LOJA", 180*SCALE, 41*SCALE);
+
+  rect(190, 52, 158, 36, 10, "#164c64");
+  ctx.fillStyle = "#ffdc35";
+  ctx.font = `bold ${16*SCALE}px Arial`;
+  ctx.fillText("🪙 " + coins, 269*SCALE, 76*SCALE);
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 100*SCALE, W*SCALE, 480*SCALE);
+  ctx.clip();
+
+  skins.forEach((s, i) => {
+    const y = 105 + i*76 - shopScroll;
+    if (y < 30 || y > 590) return;
+
+    rect(12, y, 336, 66, 10, "#11536a");
+    ctx.strokeStyle = i === selected ? "#38f59a" : "#27718a";
+    ctx.lineWidth = (i === selected ? 3 : 1) * SCALE;
+    ctx.strokeRect(13*SCALE, (y+1)*SCALE, 334*SCALE, 64*SCALE);
+
+    drawBird(24, y+14, 36, i);
+
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#fff";
+    ctx.font = `bold ${15*SCALE}px Arial`;
+    ctx.fillText(s.name, 72*SCALE, (y+24)*SCALE);
+    ctx.font = `${13*SCALE}px Arial`;
+    ctx.fillStyle = "#bfeafa";
+    const has = owned.includes(i);
+    ctx.fillText(i === selected ? "Selecionado" : has ? "Comprado" : s.price + " moedas", 72*SCALE, (y+45)*SCALE);
+
+    rect(238, y+15, 96, 34, 7, i === selected ? "#178f53" : has ? "#267d9c" : "#22b84c");
+    ctx.fillStyle = "#fff";
+    ctx.textAlign = "center";
+    ctx.font = `bold ${12*SCALE}px Arial`;
+    ctx.fillText(i === selected ? "USANDO" : has ? "USAR" : "COMPRAR", 286*SCALE, (y+37)*SCALE);
+  });
+  ctx.restore();
+}
+
+function gameover() {
+  background();
+  drawPipes();
+  drawBird(bird.x, bird.y, bird.size, selected, bird.rotation);
+
+  ctx.fillStyle = "rgba(0,0,0,0.65)";
+  ctx.fillRect(0, 0, W*SCALE, H*SCALE);
+  rect(28, 165, 304, 310, 18, "#07374a");
+
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#fff";
+  ctx.font = `bold ${30*SCALE}px Arial`;
+  ctx.fillText("GAME OVER", 180*SCALE, 215*SCALE);
+  ctx.font = `bold ${22*SCALE}px Arial`;
+  ctx.fillText("Pontos: " + score, 180*SCALE, 265*SCALE);
+  ctx.fillText("🪙 Moedas: " + coins, 180*SCALE, 305*SCALE);
+
+  rect(50, 340, 260, 42, 10, "#27b84c");
+  rect(50, 392, 260, 38, 10, "#168bf2");
+  rect(50, 440, 260, 38, 10, "#c77d00");
+
+  ctx.font = `bold ${17*SCALE}px Arial`;
+  ctx.fillText("RESTART", 180*SCALE, 368*SCALE);
+  ctx.fillText("MENU", 180*SCALE, 418*SCALE);
+  ctx.fillText("🏆 TOP GLOBAL", 180*SCALE, 466*SCALE);
+}
+
+function endGame() {
+  if (state !== "playing") return;
+  state = "gameover";
+  sound(hitSound);
+  enviarPontuacao(score);
+}
+
+function update() {
+  // Timers das habilidades
+  if (superActive) {
+    superTimer -= 1/60;
+    if (superTimer <= 0) {
+      superActive = false;
+      speedBoost = false;
+      pipeSpeed = 2.1;
+    }
+  }
+  if (secretActive) {
+    secretTimer -= 1/60;
+    if (secretTimer <= 0) {
+      secretActive = false;
+      speedBoost = false;
+      pipeSpeed = 2.1;
+    }
+  }
+
+  bird.vel += bird.gravity;
+  bird.y += bird.vel;
+  bird.rotation = bird.vel < 0 ? -0.35 : bird.vel > 2 ? 0.35 : 0;
+
+  const imune = superActive || secretActive;
+
+  if (!imune && (bird.y < 0 || bird.y + bird.size > H)) {
+    endGame();
+    return;
+  }
+  if (imune) {
+    if (bird.y < 0) bird.y = 0;
+    if (bird.y + bird.size > H) bird.y = H - bird.size;
+  }
+
+  for (const p of pipes) {
+    p.x -= pipeSpeed;
+
+    if (!p.counted && p.x + pipeWidth < bird.x) {
+      p.counted = true;
+      score++;
+      coins++;
+      save();
+      sound(scoreSound);
+    }
+
+    if (!imune && bird.x + bird.size - 5 > p.x && bird.x + 5 < p.x + pipeWidth &&
+       (bird.y + 5 < p.top || bird.y + bird.size - 5 > p.bottom)) {
+      endGame();
+      return;
+    }
+  }
+  pipes = pipes.filter(p => p.x > -pipeWidth);
+}
+
+function drawPowerUI() {
+  // Canto direito
+  if (superActive || secretActive) {
+    const texto = secretActive ? `❓ SECRETA` : `🚀 SUPER`;
+    const tempo = secretActive ? Math.ceil(secretTimer) : Math.ceil(superTimer);
+    
+    rect(250, 12, 100, 50, 10, "rgba(0,0,0,0.55)");
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#fff";
+    ctx.font = `bold ${13*SCALE}px Arial`;
+    ctx.fillText(texto, 300*SCALE, 32*SCALE);
+    ctx.fillStyle = "#ffdc35";
+    ctx.font = `bold ${16*SCALE}px Arial`;
+    ctx.fillText(tempo + "s", 300*SCALE, 52*SCALE);
+  }
+}
+
+function loop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (state === "menu") menu();
+  if (state === "shop") shop();
+  if (state === "ranking") rankingScreen();
+
+  if (state === "playing") {
+    background();
+    update();
+    drawPipes();
+    drawBird(bird.x, bird.y, bird.size, selected, bird.rotation);
+
+    ctx.textAlign = "center";
+    ctx.font = `bold ${28*SCALE}px Arial`;
+    ctx.lineWidth = 3*SCALE;
+    ctx.strokeStyle = "#222";
+    ctx.fillStyle = "#fff";
+    ctx.strokeText(score, 180*SCALE, 42*SCALE);
+    ctx.fillText(score, 180*SCALE, 42*SCALE);
+
+    ctx.textAlign = "left";
+    ctx.font = `bold ${16*SCALE}px Arial`;
+    ctx.fillText("🪙 " + coins, 10*SCALE, 30*SCALE);
+
+    drawPowerUI();
+  }
+
+  if (state === "gameover") gameover();
+  requestAnimationFrame(loop);
+}
+
+// ================== CONTROLES ==================
+function pos(e) {
+  const r = canvas.getBoundingClientRect();
+  return {
+    x: (e.clientX - r.left) * W / r.width,
+    y: (e.clientY - r.top) * H / r.height
+  };
+}
+
+canvas.addEventListener("pointerdown", e => {
+  e.preventDefault();
+  const {x, y} = pos(e);
+
+  if (state === "menu") {
+    if (x > 295 && x < 355 && y > 5 && y < 55) {
+      mostrarConfig();
+      return;
+    }
+    if (y > 215 && y < 270) reset();
+    else if (y > 270 && y < 325) { shopScroll = 0; state = "shop"; }
+    else if (y > 325 && y < 380) {
+      state = "ranking";
+      carregarRanking();
+    }
+    else if (y > 380 && y < 435) {
+      mostrarHabilidades();
+    }
+    return;
+  }
+
+  if (state === "shop") {
+    if (x < 75 && y < 60) { state = "menu"; return; }
+    if (y >= 100 && y < 580) {
+      const i = Math.floor((y - 105 + shopScroll) / 76);
+      if (i < 0 || i >= skins.length) return;
+      if (owned.includes(i)) {
+        selected = i;
+        save();
+      } else if (coins >= skins[i].price) {
+        coins -= skins[i].price;
+        owned.push(i);
+        selected = i;
+        save();
+      } else alert("Moedas insuficientes!");
+    }
+    return;
+  }
+
+  if (state === "ranking") {
+    if (x < 80 && y < 60) state = "menu";
+    return;
+  }
+
+  if (state === "playing") {
+    bird.vel = bird.jump;
+    sound(jumpSound);
+    return;
+  }
+
+  if (state === "gameover") {
+    if (x > 40 && x < 320 && y > 335 && y < 385) reset();
+    else if (x > 40 && x < 320 && y > 385 && y < 435) state = "menu";
+    else if (x > 40 && x < 320 && y > 435 && y < 485) {
+      state = "ranking";
+      carregarRanking();
+    }
+  }
+});
+
+canvas.addEventListener("wheel", e => {
+  if (state === "shop") {
+    shopScroll = Math.max(0, Math.min(76 * skins.length - 460, shopScroll + e.deltaY));
+  }
+}, {passive:true});
+
+let touchStartY = null;
+canvas.addEventListener("touchstart", e => { touchStartY = e.touches[0].clientY; }, {passive:true});
+canvas.addEventListener("touchend", e => {
+  if (state !== "shop" || touchStartY === null) return;
+  const diff = touchStartY - e.changedTouches[0].clientY;
+  if (Math.abs(diff) > 20) {
+    shopScroll = Math.max(0, Math.min(76 * skins.length - 460, shopScroll + diff));
+  }
+  touchStartY = null;
+}, {passive:true});
+
+// Início
+if (!playerName) mostrarTelaNickname();
+else {
+  // Verifica se é top 1 para mostrar presente
+  carregarRanking();
+}
+
+save();
+loop();
+</script>
+</body>
+  </html>
