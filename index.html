@@ -2,983 +2,937 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Flappy Bird</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  background:#0d1b24;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100dvh;
-  font-family:Arial,sans-serif;
-  overflow:hidden;
-}
-canvas{
-  width:min(100vw, 420px);
-  height:auto;
-  border:3px solid #000;
-  border-radius:12px;
-  touch-action:none;
-  box-shadow:0 0 30px rgba(0,0,0,0.6);
-}
-
-/* ===== Telas de UI ===== */
-#nicknameScreen, #configScreen, #habilidadesScreen, #presenteScreen{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,0.80);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:100;
-}
-.box{
-  background:#07374a;
-  padding:26px 22px;
-  border-radius:18px;
-  width:min(92vw,350px);
-  text-align:center;
-  box-shadow:0 10px 40px rgba(0,0,0,0.5);
-  border:2px solid #1a6b8a;
-  max-height:90vh;
-  overflow-y:auto;
-}
-.box h2{
-  color:white;
-  font-size:22px;
-  margin-bottom:8px;
-}
-.box p{
-  color:#a8d8e8;
-  font-size:14px;
-  margin-bottom:14px;
-  line-height:1.4;
-}
-#nicknameInput{
-  width:100%;
-  padding:13px;
-  font-size:17px;
-  border:none;
-  border-radius:10px;
-  outline:none;
-  text-align:center;
-  background:#0f4a63;
-  color:white;
-  margin-bottom:14px;
-}
-.btn{
-  width:100%;
-  padding:13px;
-  font-size:16px;
-  font-weight:bold;
-  border:none;
-  border-radius:10px;
-  color:white;
-  cursor:pointer;
-  margin-bottom:9px;
-  transition:0.2s;
-}
-.btn:active{transform:scale(0.97);}
-.btn-green{background:#27b84c;}
-.btn-green:hover{background:#22a043;}
-.btn-blue{background:#168bf2;}
-.btn-blue:hover{background:#1276d1;}
-.btn-red{background:#e74c3c;}
-.btn-red:hover{background:#c0392b;}
-.btn-purple{background:#9b59b6;}
-.btn-purple:hover{background:#8e44ad;}
-.btn-orange{background:#e67e22;}
-.btn-orange:hover{background:#d35400;}
-.btn-gray{background:#555;}
-.btn-gray:hover{background:#444;}
-.warning{
-  background:#3a1a1a;
-  color:#ff8a8a;
-  padding:11px;
-  border-radius:10px;
-  font-size:13px;
-  margin:10px 0 14px 0;
-  border:1px solid #c0392b;
-}
-.hab-card{
-  background:#0f4a63;
-  border-radius:12px;
-  padding:14px;
-  margin-bottom:12px;
-  text-align:left;
-  border:2px solid #1a6b8a;
-}
-.hab-card h3{
-  color:#fff;
-  font-size:17px;
-  margin-bottom:4px;
-}
-.hab-card p{
-  color:#a8d8e8;
-  font-size:13px;
-  margin-bottom:8px;
-}
-.hab-card .duracao{
-  color:#ffdc35;
-  font-size:13px;
-  font-weight:bold;
-}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:linear-gradient(160deg,#0a1622,#0d2137 50%,#0a1622);display:flex;justify-content:center;align-items:center;min-height:100dvh;font-family:'Segoe UI',system-ui,Arial,sans-serif;overflow:hidden}
+canvas{width:min(100vw,420px);height:auto;border-radius:16px;touch-action:none;box-shadow:0 0 40px rgba(0,180,255,.15),0 10px 40px rgba(0,0,0,.5)}
+.overlay{position:fixed;inset:0;background:rgba(5,15,25,.92);backdrop-filter:blur(10px);display:none;justify-content:center;align-items:center;z-index:100;padding:14px}
+.overlay.show{display:flex}
+.card{background:linear-gradient(165deg,#0c2a3d,#0a1f30);border-radius:22px;width:min(94vw,370px);max-height:90vh;overflow-y:auto;padding:24px 18px 18px;text-align:center;border:1px solid rgba(0,180,255,.22);box-shadow:0 20px 60px rgba(0,0,0,.6);position:relative;animation:cardIn .25s ease}
+@keyframes cardIn{from{opacity:0;transform:scale(.94) translateY(12px)}to{opacity:1;transform:none}}
+.close-x{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);border:none;color:#94a3b8;font-size:18px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+.close-x:active{background:rgba(255,255,255,.2);color:#fff}
+.card h2{color:#fff;font-size:20px;font-weight:700;margin-bottom:4px;padding-right:28px}
+.card .sub{color:#7eb8d4;font-size:12px;margin-bottom:14px;line-height:1.4}
+input[type=text],input[type=number],input[type=password],select{width:100%;padding:13px 14px;font-size:15px;border:none;border-radius:12px;outline:none;text-align:center;background:rgba(0,40,60,.7);color:#fff;margin-bottom:10px;border:1px solid rgba(0,160,220,.3)}
+input:focus,select:focus{border-color:#00b4ff}
+.btn{width:100%;padding:13px;font-size:14px;font-weight:700;border:none;border-radius:12px;color:#fff;cursor:pointer;margin-bottom:8px}
+.btn:active{transform:scale(.97);filter:brightness(.9)}
+.btn-green{background:linear-gradient(135deg,#22c55e,#16a34a)}
+.btn-blue{background:linear-gradient(135deg,#3b82f6,#2563eb)}
+.btn-red{background:linear-gradient(135deg,#ef4444,#dc2626)}
+.btn-purple{background:linear-gradient(135deg,#a855f7,#7c3aed)}
+.btn-orange{background:linear-gradient(135deg,#f97316,#ea580c)}
+.btn-gray{background:rgba(80,90,100,.55)}
+.btn-gold{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#1a1a1a}
+.btn-cyan{background:linear-gradient(135deg,#06b6d4,#0891b2)}
+.btn-fire{background:linear-gradient(135deg,#ff6b00,#ff0000)}
+.warning{background:rgba(180,30,30,.2);color:#fca5a5;padding:10px;border-radius:10px;font-size:12px;margin:8px 0 10px;border:1px solid rgba(220,50,50,.3)}
+.hab-card,.stat-row,.ach-row,.title-row,.acc-row,.trade-row{background:rgba(0,40,60,.5);border-radius:14px;padding:12px;margin-bottom:8px;text-align:left;border:1px solid rgba(0,160,220,.18)}
+.hab-card h3,.title-row h3{color:#fff;font-size:14px;margin-bottom:2px}
+.hab-card p,.ach-row p{color:#7eb8d4;font-size:11px;margin-bottom:3px}
+.hab-card .duracao{color:#fbbf24;font-size:11px;font-weight:700}
+.admin-box{background:rgba(0,40,60,.5);border-radius:12px;padding:10px;margin-bottom:8px;border:1px solid rgba(0,160,220,.18);text-align:left}
+.admin-box h4{color:#fbbf24;font-size:12px;margin-bottom:6px}
+.mission-bar-bg{background:rgba(0,40,60,.6);border-radius:8px;height:10px;overflow:hidden;margin:8px 0;border:1px solid rgba(0,160,220,.2)}
+.mission-bar-fill{height:100%;background:linear-gradient(90deg,#22c55e,#4ade80);border-radius:8px;transition:width .4s}
+#toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(80px);background:rgba(10,30,50,.96);color:#fff;padding:12px 20px;border-radius:14px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:all .3s;border:1px solid rgba(0,180,255,.3);max-width:88vw;text-align:center;pointer-events:none}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.profile-pic{width:72px;height:72px;border-radius:50%;object-fit:cover;border:3px solid #00b4ff;margin:0 auto 10px;display:block;background:#0e3a52}
+.medal{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;margin:2px}
+.medal-bronze{background:#92400e;color:#fbbf24}
+.medal-silver{background:#475569;color:#e2e8f0}
+.medal-gold{background:#a16207;color:#fde68a}
+.medal-diamond{background:#1e3a5f;color:#7dd3fc}
+.stat-row{display:flex;justify-content:space-between;align-items:center}
+.stat-row span:first-child{color:#7eb8d4;font-size:13px}
+.stat-row span:last-child{color:#fff;font-weight:700;font-size:13px}
+.ach-row{display:flex;gap:10px;align-items:center}
+.ach-icon{font-size:22px;width:32px;text-align:center}
+.ach-info{flex:1}
+.ach-info h4{color:#fff;font-size:13px;margin-bottom:1px}
+.ach-done{border-color:rgba(34,197,94,.4)!important;background:rgba(20,60,30,.4)!important}
+.trade-btn-img{height:44px;cursor:pointer;transition:transform .15s;border-radius:8px}
+.trade-btn-img:active{transform:scale(.92)}
 </style>
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
-
 <canvas id="gameCanvas" width="720" height="1280"></canvas>
+<audio id="bgMusic" src="Main.flac" loop preload="auto"></audio>
+<input type="file" id="photoInput" accept="image/*" style="display:none">
+<div id="toast"></div>
 
-<!-- Nickname -->
-<div id="nicknameScreen">
-  <div class="box">
-    <h2>Escolha seu Nick</h2>
-    <p>Esse nome vai aparecer no ranking global</p>
-    <input type="text" id="nicknameInput" maxlength="12" placeholder="Digite seu nome..." autocomplete="off">
-    <button class="btn btn-green" id="saveNameBtn">Salvar</button>
-  </div>
+<!-- NICK -->
+<div class="overlay" id="nicknameScreen"><div class="card"><button class="close-x" onclick="hide('nicknameScreen')">✕</button><h2>🎮 Escolha seu Nick</h2><p class="sub">Esse nome aparece no ranking</p><input type="text" id="nicknameInput" maxlength="12" placeholder="Seu nome..." autocomplete="off"><button class="btn btn-green" id="saveNameBtn">Começar</button></div></div>
+
+<!-- CONFIG -->
+<div class="overlay" id="configScreen"><div class="card"><button class="close-x" onclick="hide('configScreen')">✕</button><h2>⚙️ Configurações</h2><p class="sub">Gerencie sua conta</p><button class="btn btn-blue" id="changeNickBtn">Trocar Nickname</button><button class="btn btn-cyan" id="musicBtn">🎵 Música</button><div class="warning">⚠️ Resetar apaga tudo</div><button class="btn btn-red" id="resetGameBtn">Resetar Game</button><button class="btn btn-orange" id="adminBtn">Painel Admin</button></div></div>
+
+<!-- ADMIN PASS -->
+<div class="overlay" id="adminPassScreen"><div class="card"><button class="close-x" onclick="hide('adminPassScreen')">✕</button><h2>🔒 Acesso Admin</h2><p class="sub">Digite a senha</p><input type="password" id="adminPassInput" placeholder="Senha..." autocomplete="off"><button class="btn btn-orange" id="adminPassOk">Entrar</button></div></div>
+
+<!-- ADMIN -->
+<div class="overlay" id="adminScreen"><div class="card" style="width:min(94vw,380px)"><button class="close-x" onclick="hide('adminScreen')">✕</button><h2>🛠️ Painel Admin</h2><p class="sub" style="color:#fca5a5">Acesso restrito</p>
+<div class="admin-box"><h4>Nome do Jogador</h4><input type="text" id="adminNameInput" maxlength="12" placeholder="Nick..."></div>
+<div class="admin-box"><h4>💰 Dar Moedas</h4><input type="number" id="adminCoinsInput" min="1" value="100"><button class="btn btn-green" id="adminGiveCoinsBtn" style="margin:0">Dar Moedas</button></div>
+<div class="admin-box"><h4>⚡ Habilidades</h4>
+<button class="btn btn-blue" id="adminGiveSuperBtn" style="margin-bottom:6px">Dar Super</button>
+<button class="btn btn-purple" id="adminGiveSecretBtn" style="margin-bottom:6px">Dar Secreta</button>
+<button class="btn btn-fire" id="adminGiveFireBtn" style="margin:0">Dar Fire (2 dias)</button>
 </div>
+<div class="admin-box"><h4>📊 Level</h4><input type="number" id="adminLevelInput" min="1" value="1"><button class="btn btn-orange" id="adminSetLevelBtn" style="margin:0">Definir Level</button></div>
+<div class="admin-box"><h4>👑 Prêmio Top 1</h4><button class="btn btn-gold" id="adminGivePrizeBtn" style="margin:0">Dar Prêmio ao Top 1</button></div>
+</div></div>
 
-<!-- Configurações -->
-<div id="configScreen">
-  <div class="box">
-    <h2>⚙️ Configurações</h2>
-    <button class="btn btn-blue" id="changeNickBtn">Trocar Nickname</button>
-    <div class="warning">
-      ⚠️ Se você resetar, perderá tudo<br>(moedas, skins e progresso)
-    </div>
-    <button class="btn btn-red" id="resetGameBtn">Resetar Game</button>
-    <button class="btn btn-gray" id="closeConfigBtn">Fechar</button>
-  </div>
+<!-- HABILIDADES -->
+<div class="overlay" id="habilidadesScreen"><div class="card"><button class="close-x" onclick="hide('habilidadesScreen')">✕</button><h2>⚡ Habilidades</h2><p class="sub">Poderes especiais</p>
+<div class="hab-card"><h3>🚀 Super</h3><p>Velocidade + Imunidade</p><div class="duracao">⏱ 10s</div><button class="btn btn-green" id="buySuperBtn" style="margin-top:8px;margin-bottom:0">Comprar — 50 🪙</button></div>
+<div class="hab-card" style="border-color:rgba(168,85,247,.4)"><h3>❓ Secreta</h3><p>Poder máximo</p><div class="duracao">⏱ 60s imunidade + 30s vel</div><button class="btn btn-purple" id="secretBtn" style="margin-top:8px;margin-bottom:0" disabled>Bloqueada</button></div>
+<div class="hab-card" style="border-color:rgba(255,100,0,.5)"><h3>🔥 Fire</h3><p>Rastro de fogo + 20× velocidade</p><div class="duracao">⏱ 5s • Válida por 2 dias</div><button class="btn btn-fire" id="buyFireBtn" style="margin-top:8px;margin-bottom:0">Comprar — 100 🪙</button></div>
+</div></div>
+
+<!-- PRESENTE -->
+<div class="overlay" id="presenteScreen"><div class="card"><button class="close-x" onclick="hide('presenteScreen')">✕</button><h2>🎁 Presente!</h2><p class="sub" id="presenteMsg">Você é o <b>Melhor Jogador</b>!</p>
+<div class="hab-card" style="border-color:rgba(168,85,247,.5);text-align:center"><h3 style="font-size:24px">❓ ???</h3><p>Habilidade Secreta</p><div class="duracao">60s imunidade + 30s velocidade</div></div>
+<button class="btn btn-purple" id="resgatarPresenteBtn">Resgatar</button></div></div>
+
+<!-- MISSÃO -->
+<div class="overlay" id="missionScreen"><div class="card"><button class="close-x" onclick="hide('missionScreen')">✕</button><h2>📅 Missão Diária</h2><p class="sub" id="missionDesc">...</p><div class="mission-bar-bg"><div class="mission-bar-fill" id="missionBar" style="width:0%"></div></div><p id="missionProgressText" style="color:#fbbf24;font-weight:700;font-size:14px">0 / 0</p><p id="missionReward" style="color:#4ade80;font-size:13px">Recompensa: 100 🪙</p><p id="missionStatus" style="font-size:12px;margin-top:6px"></p></div></div>
+
+<!-- PROFILE -->
+<div class="overlay" id="profileScreen"><div class="card"><button class="close-x" onclick="hide('profileScreen')">✕</button>
+<img id="profilePic" class="profile-pic" src="" alt="" style="display:none">
+<div id="profilePicPlaceholder" style="width:72px;height:72px;border-radius:50%;background:#0e3a52;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:28px;border:3px solid #1a6b8a">👤</div>
+<h2 id="profileName" style="padding-right:0;margin-bottom:2px">Jogador</h2>
+<p class="sub" id="profileTitle" style="color:#fbbf24;margin-bottom:8px">Iniciante</p>
+<div id="profileMedals" style="margin-bottom:12px"></div>
+<button class="btn btn-cyan" id="changePhotoBtn" style="margin-bottom:8px">📷 Alterar Foto</button>
+<button class="btn btn-blue" id="viewStatsBtn">📊 Estatísticas</button>
+<button class="btn btn-purple" id="viewAchBtn">🏅 Conquistas</button>
+<button class="btn btn-orange" id="viewTitlesBtn">👑 Títulos</button>
+<button class="btn btn-green" id="viewAccBtn">🎩 Acessórios</button>
+</div></div>
+
+<div class="overlay" id="statsScreen"><div class="card"><button class="close-x" onclick="hide('statsScreen')">✕</button><h2>📊 Estatísticas</h2>
+<div class="stat-row"><span>Partidas jogadas</span><span id="stGames">0</span></div>
+<div class="stat-row"><span>Melhor pontuação</span><span id="stBest">0</span></div>
+<div class="stat-row"><span>Pontos totais</span><span id="stTotal">0</span></div>
+<div class="stat-row"><span>Canos passados</span><span id="stPipes">0</span></div>
+<div class="stat-row"><span>Tempo total</span><span id="stTime">0s</span></div>
+<div class="stat-row"><span>Mortes</span><span id="stDeaths">0</span></div>
+<div class="stat-row"><span>Nível</span><span id="stLevel">1</span></div>
+<div class="stat-row"><span>Dias seguidos</span><span id="stStreak">0</span></div>
+</div></div>
+
+<div class="overlay" id="achScreen"><div class="card"><button class="close-x" onclick="hide('achScreen')">✕</button><h2>🏅 Conquistas</h2><div id="achList"></div></div></div>
+<div class="overlay" id="titlesScreen"><div class="card"><button class="close-x" onclick="hide('titlesScreen')">✕</button><h2>👑 Títulos</h2><p class="sub">Toque para equipar</p><div id="titlesList"></div></div></div>
+<div class="overlay" id="accScreen"><div class="card"><button class="close-x" onclick="hide('accScreen')">✕</button><h2>🎩 Acessórios</h2><p class="sub">Compre e equipe no pássaro</p><div id="accList"></div></div></div>
+
+<div class="overlay" id="loginScreen"><div class="card"><button class="close-x" onclick="hide('loginScreen')">✕</button><h2>📅 Login Diário</h2><p class="sub" id="loginStreak">Dia 1</p><p style="color:#fbbf24;font-size:28px;font-weight:700;margin:12px 0" id="loginReward">+10 🪙</p><button class="btn btn-green" id="claimLoginBtn">Resgatar</button></div></div>
+<div class="overlay" id="challengeScreen"><div class="card"><button class="close-x" onclick="hide('challengeScreen')">✕</button><h2>⚔️ Desafio 1v1</h2><p class="sub">Crie um desafio com sua melhor pontuação</p><p style="color:#fff;font-size:15px;margin-bottom:8px">Sua melhor: <b id="chalBest">0</b> pts</p><button class="btn btn-orange" id="createChallengeBtn">Criar Desafio</button><p class="sub" style="margin-top:12px" id="chalCode"></p></div></div>
+
+<div class="overlay" id="powerSelectScreen"><div class="card"><button class="close-x" onclick="hide('powerSelectScreen');startGameNoPower()">✕</button><h2>⚡ Usar Poder?</h2><p class="sub">Escolha um poder para esta partida</p>
+<button class="btn btn-green" id="useSuperBtn" style="display:none">🚀 Usar SUPER (10s)</button>
+<button class="btn btn-purple" id="useSecretBtn" style="display:none">❓ Usar SECRETA (60s)</button>
+<button class="btn btn-fire" id="useFireBtn" style="display:none">🔥 Usar FIRE (5s • 20×)</button>
+<button class="btn btn-gray" id="useNoPowerBtn">Jogar sem poder</button></div></div>
+
+<!-- TRADE -->
+<div class="overlay" id="tradeScreen"><div class="card"><button class="close-x" onclick="hide('tradeScreen')">✕</button><h2>🔄 Trades</h2><p class="sub">Troque skins ou habilidades com outros jogadores</p>
+<input type="text" id="tradeTarget" maxlength="12" placeholder="Nome do jogador destino">
+<select id="tradeType">
+<option value="skin">Skin</option>
+<option value="super">Habilidade Super</option>
+<option value="secret">Habilidade Secreta</option>
+<option value="fire">Habilidade Fire (2 dias)</option>
+</select>
+<select id="tradeSkinSelect" style="display:none"></select>
+<button class="btn btn-cyan" id="sendTradeBtn">Enviar Trade</button>
+<div id="incomingTrades" style="margin-top:12px;text-align:left"></div>
+</div></div>
+
+<!-- RULES -->
+<div class="overlay" id="rulesScreen"><div class="card"><button class="close-x" onclick="hide('rulesScreen')">✕</button><h2>📜 Regras / Updates</h2><p class="sub">O que chegou de novo</p>
+<div class="hab-card" style="text-align:left">
+<p style="color:#4ade80;font-weight:700;margin-bottom:6px">+ Novas skins</p>
+<p style="color:#7eb8d4;font-size:12px;margin-bottom:4px">• Red Bird (vermelha + olho branco) — 100 🪙 Secret</p>
+<p style="color:#7eb8d4;font-size:12px;margin-bottom:8px">• Blue Dark (azul escuro) — 80 🪙 Épico</p>
+<p style="color:#4ade80;font-weight:700;margin-bottom:6px">+ Raridades nas skins</p>
+<p style="color:#7eb8d4;font-size:12px;margin-bottom:8px">Comum / Raro (1-50) / Épico (50-100) / Secret (100+)</p>
+<p style="color:#4ade80;font-weight:700;margin-bottom:6px">+ Novos rankings</p>
+<p style="color:#7eb8d4;font-size:12px;margin-bottom:8px">Pontuação • Level • Moedas</p>
+<p style="color:#4ade80;font-weight:700;margin-bottom:6px">+ Sistema de Trades</p>
+<p style="color:#7eb8d4;font-size:12px;margin-bottom:8px">Troque skins e habilidades pelo nome do jogador</p>
+<p style="color:#4ade80;font-weight:700;margin-bottom:6px">+ Nova habilidade FIRE</p>
+<p style="color:#7eb8d4;font-size:12px;margin-bottom:8px">20× velocidade + rastro de fogo por 5s • Válida por 2 dias</p>
+<p style="color:#4ade80;font-weight:700;margin-bottom:6px">+ Bug do modo Treino corrigido</p>
+<p style="color:#7eb8d4;font-size:12px">Agora você morre normal no treino</p>
 </div>
+</div></div>
 
-<!-- Habilidades -->
-<div id="habilidadesScreen">
-  <div class="box">
-    <h2>⚡ Habilidades</h2>
-    <p>Compre e use poderes especiais durante o jogo</p>
+<script>
+function toast(msg,d=2800){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._tid);t._tid=setTimeout(()=>t.classList.remove("show"),d)}
+function show(id){document.getElementById(id).classList.add("show")}
+function hide(id){document.getElementById(id).classList.remove("show")}
 
-    <div class="hab-card">
-      <h3>🚀 Super</h3>
-      <p>Fica mais rápido + Imunidade total</p>
-      <div class="duracao">Duração: 10 segundos</div>
-      <br>
-      <button class="btn btn-green" id="buySuperBtn" style="margin:0">Comprar - 50 🪙</button>
-    </div>
+let db=null,firebaseReady=false;
+try{firebase.initializeApp({apiKey:"AIzaSyCoTiUZODa09myjID6ueTqXmabUgjcJhWo",authDomain:"oxiii-21590.firebaseapp.com",projectId:"oxiii-21590",storageBucket:"oxiii-21590.firebasestorage.app",messagingSenderId:"719460323446",appId:"1:719460323446:web:771a8273cc8cc6c14fcf57",measurementId:"G-RZK3J4QQFK"});db=firebase.firestore();firebaseReady=true}catch(e){}
 
-    <div class="hab-card" style="border-color:#9b59b6">
-      <h3>❓ ??? (Secreta)</h3>
-      <p>Habilidade misteriosa e muito forte</p>
-      <div class="duracao">Duração: 60s imunidade + 30s velocidade</div>
-      <br>
-      <button class="btn btn-purple" id="secretBtn" style="margin:0" disabled>Bloqueada</button>
-    </div>
+const canvas=document.getElementById("gameCanvas"),ctx=canvas.getContext("2d");
+ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality="high";
+const SCALE=2,W=360,H=640;
+const birdImg=new Image();birdImg.src="bird2.png";
+const jumpSound=new Audio("voar.flac"),scoreSound=new Audio("point.flac"),hitSound=new Audio("die.flac");
 
-    <button class="btn btn-gray" id="closeHabBtn">Fechar</button>
-  </div>
-</div>
+// Imagens de Trade
+const tradeIconImg=new Image();tradeIconImg.src="trade.png";
+const acceptImg=new Image();acceptImg.src="accept.png";
+const cancelImg=new Image();cancelImg.src="cancel.png";
 
-<!-- Presente Secreto -->
-<div id="presenteScreen">
-  <div class="box">
-    <h2>🎁 Presente Disponível!</h2>
-    <p>Você ficou em <b>1º lugar</b> no ranking!<br>Resgate sua habilidade secreta:</p>
-    
-    <div class="hab-card" style="border-color:#9b59b6; text-align:center">
-      <h3 style="font-size:28px">❓ ???</h3>
-      <p>Habilidade Secreta</p>
-      <div class="duracao">Imunidade 60s + Velocidade 30s</div>
-    </div>
-
-    <button class="btn btn-purple" id="resgatarPresenteBtn">Resgatar Presente</button>
-    <button class="btn btn-gray" id="closePresenteBtn">Depois</button>
-  </div>
-</div>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyCoTiUZODa09myjID6ueTqXmabUgjcJhWo",
-  authDomain: "oxiii-21590.firebaseapp.com",
-  projectId: "oxiii-21590",
-  storageBucket: "oxiii-21590.firebasestorage.app",
-  messagingSenderId: "719460323446",
-  appId: "1:719460323446:web:771a8273cc8cc6c14fcf57",
-  measurementId: "G-RZK3J4QQFK"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// ================== CONFIG ==================
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-ctx.imageSmoothingEnabled = true;
-ctx.imageSmoothingQuality = "high";
-
-const SCALE = 2;
-const W = 360;
-const H = 640;
-
-const birdImg = new Image();
-birdImg.src = "bird2.png";
-
-const jumpSound = new Audio("voar.flac");
-const scoreSound = new Audio("point.flac");
-const hitSound = new Audio("die.flac");
-
-const skins = [
-  {name:"Amarelo", color:"#ffd52a", price:0},
-  {name:"Vermelho", color:"#ff4545", price:5},
-  {name:"Azul", color:"#2196ff", price:10},
-  {name:"Verde", color:"#71e52d", price:15},
-  {name:"Roxo", color:"#c34cff", price:25},
-  {name:"Preto", color:"#30343b", price:40},
-  {name:"Black Bird", color:"#111111", price:50, special:"black"},
-  {name:"Rainbow Bird", color:"#ff00ff", price:100, special:"rainbow"},
-  {name:"Bird Hacker", color:"#00ff41", price:200, special:"hacker"}
+const skins=[
+  {name:"Amarelo",color:"#ffd52a",price:0},
+  {name:"Vermelho",color:"#ff4545",price:5},
+  {name:"Azul",color:"#2196ff",price:10},
+  {name:"Verde",color:"#71e52d",price:15},
+  {name:"Roxo",color:"#c34cff",price:25},
+  {name:"Preto",color:"#30343b",price:40},
+  {name:"Black Bird",color:"#111111",price:50,special:"black"},
+  {name:"Rainbow Bird",color:"#ff00ff",price:100,special:"rainbow"},
+  {name:"Bird Hacker",color:"#00ff41",price:200,special:"hacker"},
+  {name:"Red Bird",color:"#e53935",price:100,special:"red"},
+  {name:"Blue Dark",color:"#0a192f",price:80,special:"darkblue"}
 ];
 
-function load(key, fallback) {
-  try {
-    const v = localStorage.getItem(key);
-    return v === null ? fallback : JSON.parse(v);
-  } catch(e) { return fallback; }
+const ADMIN_PASSWORD="ronaldex_lindao";
+
+function getRarity(price){
+  if(price===0) return {name:"Comum",color:"#94a3b8"};
+  if(price<=50) return {name:"Raro",color:"#3b82f6"};
+  if(price<=100) return {name:"Épico",color:"#a855f7"};
+  return {name:"Secret",color:"#f59e0b"};
 }
 
-let coins = Math.max(0, Number(load("flappyCoins", 0)) || 0);
-let owned = load("flappyOwned", [0]);
-if (!Array.isArray(owned)) owned = [0];
-owned = [...new Set([0, ...owned.filter(i => Number.isInteger(i) && i >= 0 && i < skins.length)])];
+const TITLES=[
+  {id:"iniciante",name:"Iniciante",req:"Começar a jogar",check:()=>true},
+  {id:"voador",name:"Voador",req:"Chegar a 10 pontos",check:()=>stats.best>=10},
+  {id:"as",name:"Ás dos Céus",req:"Chegar a 25 pontos",check:()=>stats.best>=25},
+  {id:"lenda",name:"Lenda",req:"Chegar a 50 pontos",check:()=>stats.best>=50},
+  {id:"deus",name:"Deus do Flappy",req:"Chegar a 100 pontos",check:()=>stats.best>=100},
+  {id:"rico",name:"Milionário",req:"Ter 500 moedas",check:()=>coins>=500},
+  {id:"veterano",name:"Veterano",req:"Jogar 50 partidas",check:()=>stats.games>=50},
+  {id:"imparavel",name:"Imparável",req:"Sequência de 7 dias",check:()=>loginStreak>=7}
+];
 
-let selected = Number(load("flappySelected", 0));
-if (!owned.includes(selected)) selected = 0;
+const ACHIEVEMENTS=[
+  {id:"first",icon:"🐣",name:"Primeiro Voo",desc:"Jogue sua primeira partida",check:()=>stats.games>=1},
+  {id:"score10",icon:"🔟",name:"Dez Pontos",desc:"Faça 10 pontos",check:()=>stats.best>=10},
+  {id:"score25",icon:"⭐",name:"Estrela",desc:"Faça 25 pontos",check:()=>stats.best>=25},
+  {id:"score50",icon:"🏆",name:"Campeão",desc:"Faça 50 pontos",check:()=>stats.best>=50},
+  {id:"score100",icon:"💎",name:"Diamante",desc:"Faça 100 pontos",check:()=>stats.best>=100},
+  {id:"games10",icon:"🎮",name:"Viciado",desc:"Jogue 10 partidas",check:()=>stats.games>=10},
+  {id:"games50",icon:"🔥",name:"Hardcore",desc:"Jogue 50 partidas",check:()=>stats.games>=50},
+  {id:"pipes100",icon:"🧱",name:"Canos Master",desc:"Passe 100 canos no total",check:()=>stats.pipes>=100},
+  {id:"coins100",icon:"🪙",name:"Poupador",desc:"Acumule 100 moedas",check:()=>coins>=100},
+  {id:"skin3",icon:"🎨",name:"Colecionador",desc:"Tenha 3 skins",check:()=>owned.length>=3},
+  {id:"super",icon:"🚀",name:"Super Saiyan",desc:"Desbloqueie a Super",check:()=>hasSuper},
+  {id:"login3",icon:"📅",name:"Fiel",desc:"3 dias de login seguidos",check:()=>loginStreak>=3}
+];
 
-let playerName = load("flappyName", "");
-let hasSuper = load("flappyHasSuper", false);
-let hasSecret = load("flappyHasSecret", false);
-let secretClaimed = load("flappySecretClaimed", false);
+const ACCESSORIES=[
+  {id:"none",name:"Nenhum",price:0,emoji:""},
+  {id:"crown",name:"Coroa",price:30,emoji:"👑"},
+  {id:"glasses",name:"Óculos",price:20,emoji:"🕶️"},
+  {id:"hat",name:"Chapéu",price:25,emoji:"🎩"},
+  {id:"halo",name:"Auréola",price:40,emoji:"😇"},
+  {id:"fire",name:"Fogo",price:50,emoji:"🔥"}
+];
 
-// Poderes ativos
-let superActive = false;
-let superTimer = 0;
-let secretActive = false;
-let secretTimer = 0;
-let speedBoost = false;
+function load(k,f){try{const v=localStorage.getItem(k);return v===null?f:JSON.parse(v)}catch(e){return f}}
+let coins=Math.max(0,Number(load("flappyCoins",0))||0);
+let owned=load("flappyOwned",[0]);if(!Array.isArray(owned))owned=[0];owned=[...new Set([0,...owned.filter(i=>Number.isInteger(i)&&i>=0&&i<skins.length)])];
+let selected=Number(load("flappySelected",0));if(!owned.includes(selected))selected=0;
+let playerName=load("flappyName",""),hasSuper=load("flappyHasSuper",false),hasSecret=load("flappyHasSecret",false),secretClaimed=load("flappySecretClaimed",false);
+let hasFire=load("flappyHasFire",false);
+let fireBoughtAt=Number(load("flappyFireBoughtAt",0))||0;
+let level=Math.max(1,Number(load("flappyLevel",1))||1),xp=Math.max(0,Number(load("flappyXP",0))||0);
+let playerPhoto=load("flappyPhoto","");
+let equippedTitle=load("flappyTitle","iniciante");
+let equippedAcc=load("flappyAcc","none");
+let ownedAcc=load("flappyOwnedAcc",["none"]);
+let stats=load("flappyStats",{games:0,best:0,total:0,pipes:0,time:0,deaths:0});
+let loginStreak=Number(load("flappyLoginStreak",0))||0;
+let lastLogin=load("flappyLastLogin","");
+let claimedAch=load("flappyClaimedAch",[]);
 
-function save() {
-  localStorage.setItem("flappyCoins", JSON.stringify(coins));
-  localStorage.setItem("flappyOwned", JSON.stringify(owned));
-  localStorage.setItem("flappySelected", JSON.stringify(selected));
-  localStorage.setItem("flappyName", JSON.stringify(playerName));
-  localStorage.setItem("flappyHasSuper", JSON.stringify(hasSuper));
-  localStorage.setItem("flappyHasSecret", JSON.stringify(hasSecret));
-  localStorage.setItem("flappySecretClaimed", JSON.stringify(secretClaimed));
+function isFireValid(){
+  if(!hasFire)return false;
+  const twoDays=2*24*60*60*1000;
+  return (Date.now()-fireBoughtAt)<twoDays;
 }
 
-// ========== UI ==========
-const nicknameScreen = document.getElementById("nicknameScreen");
-const nicknameInput = document.getElementById("nicknameInput");
-const saveNameBtn = document.getElementById("saveNameBtn");
-const configScreen = document.getElementById("configScreen");
-const habilidadesScreen = document.getElementById("habilidadesScreen");
-const presenteScreen = document.getElementById("presenteScreen");
+function xpNeeded(lv){return lv*50}
+function addXP(a){if(a<=0)return;xp+=a;let up=false;while(xp>=xpNeeded(level)){xp-=xpNeeded(level);level++;up=true}save();if(up)toast("🎉 LEVEL UP! Nível "+level)}
 
-function mostrarTelaNickname() {
-  nicknameScreen.style.display = "flex";
-  nicknameInput.value = playerName || "";
-  setTimeout(() => nicknameInput.focus(), 100);
+let dailyMission=load("flappyDailyMission",null),dailyProgress=Number(load("flappyDailyProgress",0))||0,dailyCompleted=load("flappyDailyCompleted",false),lastDailyDate=load("flappyLastDaily","");
+function getToday(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function initDailyMission(){const t=getToday();if(lastDailyDate!==t||!dailyMission){const m=[{type:"score",target:10,desc:"Chegue a 10 pontos em uma partida",reward:100},{type:"coins",target:10,desc:"Consiga 10 moedas",reward:100},{type:"ability",target:1,desc:"Desbloqueie 1 habilidade",reward:100}];dailyMission=m[Math.floor(Math.random()*m.length)];dailyProgress=0;dailyCompleted=false;lastDailyDate=t;save()}}
+function updateMissionProgress(type,value=1){if(!dailyMission||dailyCompleted||dailyMission.type!==type)return;if(type==="score"){if(value>=dailyMission.target){dailyProgress=dailyMission.target;completeDailyMission()}}else{dailyProgress=Math.min(dailyMission.target,dailyProgress+value);if(dailyProgress>=dailyMission.target)completeDailyMission()}save()}
+function completeDailyMission(){if(dailyCompleted)return;dailyCompleted=true;coins+=dailyMission.reward;save();toast("✅ Missão completa! +"+dailyMission.reward+" 🪙")}
+
+function checkLoginReward(){
+  const t=getToday();
+  if(lastLogin===t)return false;
+  const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+  const yStr=yesterday.getFullYear()+"-"+String(yesterday.getMonth()+1).padStart(2,"0")+"-"+String(yesterday.getDate()).padStart(2,"0");
+  if(lastLogin===yStr)loginStreak++;else loginStreak=1;
+  return true;
 }
-function esconderTelaNickname() { nicknameScreen.style.display = "none"; }
-function mostrarConfig() { configScreen.style.display = "flex"; }
-function esconderConfig() { configScreen.style.display = "none"; }
-function mostrarHabilidades() {
-  atualizarBotoesHab();
-  habilidadesScreen.style.display = "flex";
+function getLoginReward(){return Math.min(10*loginStreak,70)}
+function getMedal(){
+  if(stats.best>=100)return{name:"Diamante",cls:"medal-diamond"};
+  if(stats.best>=50)return{name:"Ouro",cls:"medal-gold"};
+  if(stats.best>=25)return{name:"Prata",cls:"medal-silver"};
+  if(stats.best>=10)return{name:"Bronze",cls:"medal-bronze"};
+  return null;
 }
-function esconderHabilidades() { habilidadesScreen.style.display = "none"; }
-function mostrarPresente() { presenteScreen.style.display = "flex"; }
-function esconderPresente() { presenteScreen.style.display = "none"; }
+function getTitleName(){const t=TITLES.find(x=>x.id===equippedTitle);return t?t.name:"Iniciante"}
 
-function atualizarBotoesHab() {
-  const buyBtn = document.getElementById("buySuperBtn");
-  const secretBtn = document.getElementById("secretBtn");
+let superActive=false,superTimer=0,secretActive=false,secretTimer=0,fireActive=false,fireTimer=0,awardedPlayer=null;
+let playStartTime=0,playTimeSec=0,practiceMode=false;
+let rankingMode="score";
+let fireParticles=[];
 
-  if (hasSuper) {
-    buyBtn.textContent = "✅ Desbloqueada";
-    buyBtn.disabled = true;
-    buyBtn.style.background = "#555";
-  } else {
-    buyBtn.textContent = "Comprar - 50 🪙";
-    buyBtn.disabled = false;
-    buyBtn.style.background = "#27b84c";
+function save(){
+  localStorage.setItem("flappyCoins",JSON.stringify(coins));
+  localStorage.setItem("flappyOwned",JSON.stringify(owned));
+  localStorage.setItem("flappySelected",JSON.stringify(selected));
+  localStorage.setItem("flappyName",JSON.stringify(playerName));
+  localStorage.setItem("flappyHasSuper",JSON.stringify(hasSuper));
+  localStorage.setItem("flappyHasSecret",JSON.stringify(hasSecret));
+  localStorage.setItem("flappySecretClaimed",JSON.stringify(secretClaimed));
+  localStorage.setItem("flappyHasFire",JSON.stringify(hasFire));
+  localStorage.setItem("flappyFireBoughtAt",JSON.stringify(fireBoughtAt));
+  localStorage.setItem("flappyLevel",JSON.stringify(level));
+  localStorage.setItem("flappyXP",JSON.stringify(xp));
+  localStorage.setItem("flappyDailyMission",JSON.stringify(dailyMission));
+  localStorage.setItem("flappyDailyProgress",JSON.stringify(dailyProgress));
+  localStorage.setItem("flappyDailyCompleted",JSON.stringify(dailyCompleted));
+  localStorage.setItem("flappyLastDaily",JSON.stringify(lastDailyDate));
+  localStorage.setItem("flappyPhoto",JSON.stringify(playerPhoto));
+  localStorage.setItem("flappyTitle",JSON.stringify(equippedTitle));
+  localStorage.setItem("flappyAcc",JSON.stringify(equippedAcc));
+  localStorage.setItem("flappyOwnedAcc",JSON.stringify(ownedAcc));
+  localStorage.setItem("flappyStats",JSON.stringify(stats));
+  localStorage.setItem("flappyLoginStreak",JSON.stringify(loginStreak));
+  localStorage.setItem("flappyLastLogin",JSON.stringify(lastLogin));
+  localStorage.setItem("flappyClaimedAch",JSON.stringify(claimedAch));
+  updatePlayerData();
+}
+
+async function updatePlayerData(){
+  if(!playerName||!firebaseReady)return;
+  try{
+    await db.collection("players").doc(playerName).set({
+      name:playerName,level,coins,best:stats.best,updated:new Date()
+    },{merge:true});
+  }catch(e){}
+}
+
+function formatTime(sec){if(sec<60)return sec+"s";const m=Math.floor(sec/60),s=sec%60;if(m<60)return m+"min "+s+"s";return Math.floor(m/60)+"h "+(m%60)+"min"}
+function atualizarBotoesHab(){
+  const b=document.getElementById("buySuperBtn"),s=document.getElementById("secretBtn"),f=document.getElementById("buyFireBtn");
+  if(hasSuper){b.textContent="✅ Desbloqueada";b.disabled=true;b.style.background="rgba(80,90,100,.6)"}
+  else{b.textContent="Comprar — 50 🪙";b.disabled=false;b.style.background=""}
+  if(hasSecret){s.textContent="✅ Desbloqueada";s.disabled=true;s.style.background="rgba(80,90,100,.6)"}
+  else{s.textContent="Bloqueada";s.disabled=true}
+  if(isFireValid()){
+    const left=Math.ceil((2*24*60*60*1000-(Date.now()-fireBoughtAt))/(24*60*60*1000));
+    f.textContent="✅ Ativa ("+left+" dia"+(left>1?"s":"")+")";f.disabled=true;f.style.background="rgba(80,90,100,.6)";
+  }else if(hasFire){
+    f.textContent="Expirada — Comprar de novo 100 🪙";f.disabled=false;f.style.background="";
+  }else{
+    f.textContent="Comprar — 100 🪙";f.disabled=false;f.style.background="";
   }
+}
 
-  if (hasSecret) {
-    secretBtn.textContent = "✅ Desbloqueada";
-    secretBtn.disabled = true;
-    secretBtn.style.background = "#555";
-  } else {
-    secretBtn.textContent = "Bloqueada";
-    secretBtn.disabled = true;
+function updateProfileUI(){
+  document.getElementById("profileName").textContent=playerName||"Jogador";
+  document.getElementById("profileTitle").textContent=getTitleName();
+  const pic=document.getElementById("profilePic"),ph=document.getElementById("profilePicPlaceholder");
+  if(playerPhoto){pic.src=playerPhoto;pic.style.display="block";ph.style.display="none"}
+  else{pic.style.display="none";ph.style.display="flex"}
+  const med=getMedal();
+  document.getElementById("profileMedals").innerHTML=med?'<span class="medal '+med.cls+'">🏅 '+med.name+'</span>':'<span style="color:#64748b;font-size:12px">Sem medalha ainda</span>';
+}
+
+function openStats(){
+  document.getElementById("stGames").textContent=stats.games;
+  document.getElementById("stBest").textContent=stats.best;
+  document.getElementById("stTotal").textContent=stats.total;
+  document.getElementById("stPipes").textContent=stats.pipes;
+  document.getElementById("stTime").textContent=formatTime(stats.time);
+  document.getElementById("stDeaths").textContent=stats.deaths;
+  document.getElementById("stLevel").textContent=level;
+  document.getElementById("stStreak").textContent=loginStreak;
+  show("statsScreen");
+}
+
+function openAchievements(){
+  const list=document.getElementById("achList");list.innerHTML="";
+  ACHIEVEMENTS.forEach(a=>{
+    const done=a.check();
+    const div=document.createElement("div");
+    div.className="ach-row"+(done?" ach-done":"");
+    var ok = done ? " OK" : "";
+    div.innerHTML = '<div class="ach-icon">'+a.icon+'</div><div class="ach-info"><h4>'+a.name+ok+'</h4><p>'+a.desc+'</p></div>';
+    list.appendChild(div);
+  });
+  show("achScreen");
+}
+
+function openTitles(){
+  const list=document.getElementById("titlesList");list.innerHTML="";
+  TITLES.forEach(t=>{
+    const unlocked=t.check();
+    const div=document.createElement("div");div.className="title-row";
+    div.style.cursor=unlocked?"pointer":"default";
+    div.style.opacity=unlocked?"1":".5";
+    var check = equippedTitle===t.id ? " [OK]" : "";
+    div.innerHTML = "<h3>"+t.name+check+"</h3><p style=\"color:#7eb8d4;font-size:11px\">"+t.req+"</p>";
+    if(unlocked){
+      div.onclick=function(){
+        equippedTitle=t.id;
+        save();
+        toast("Titulo equipado: "+t.name);
+        openTitles();
+      };
+    }
+    list.appendChild(div);
+  });
+  show("titlesScreen");
+}
+
+function openAccessories(){
+  const list=document.getElementById("accList");list.innerHTML="";
+  ACCESSORIES.forEach(a=>{
+    const has=ownedAcc.includes(a.id);
+    const div=document.createElement("div");div.className="acc-row";
+    var emoji = a.emoji || "-";
+    var check = equippedAcc===a.id ? " [OK]" : "";
+    var status = has ? (equippedAcc===a.id ? "Equipado" : "Possui") : (a.price + " moedas");
+    var btnClass = has ? "btn-green" : "btn-blue";
+    var btnText = has ? (equippedAcc===a.id ? "Usando" : "Usar") : "Comprar";
+    div.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center"><div><span style="font-size:20px">'+emoji+'</span> <b style="color:#fff">'+a.name+'</b>'+check+'<p style="color:#7eb8d4;font-size:11px;margin:0">'+status+'</p></div><button class="btn '+btnClass+'" style="width:auto;padding:8px 14px;margin:0;font-size:12px">'+btnText+'</button></div>';
+    div.querySelector("button").onclick=function(){
+      if(has){equippedAcc=a.id;save();toast(emoji+" "+a.name+" equipado!");openAccessories()}
+      else if(coins>=a.price){coins-=a.price;ownedAcc.push(a.id);equippedAcc=a.id;save();toast("Comprado!");openAccessories()}
+      else toast("Moedas insuficientes");
+    };
+    list.appendChild(div);
+  });
+  show("accScreen");
+}
+
+function openTradeScreen(){
+  const sel=document.getElementById("tradeSkinSelect");
+  sel.innerHTML="";
+  owned.filter(i=>i>0).forEach(i=>{
+    const opt=document.createElement("option");
+    opt.value=i;opt.textContent=skins[i].name+" ("+getRarity(skins[i].price).name+")";
+    sel.appendChild(opt);
+  });
+  document.getElementById("tradeType").onchange=()=>{
+    document.getElementById("tradeSkinSelect").style.display=document.getElementById("tradeType").value==="skin"?"block":"none";
+  };
+  document.getElementById("tradeType").dispatchEvent(new Event("change"));
+  loadIncomingTrades();
+  show("tradeScreen");
+}
+
+async function sendTrade(){
+  const target=document.getElementById("tradeTarget").value.trim();
+  if(!target||target===playerName){toast("Nome inválido");return}
+  const type=document.getElementById("tradeType").value;
+  let payload={};
+  if(type==="skin"){
+    const idx=Number(document.getElementById("tradeSkinSelect").value);
+    if(!owned.includes(idx)||idx===0){toast("Skin inválida");return}
+    payload={type:"skin",skinIndex:idx,skinName:skins[idx].name};
+  }else if(type==="super"){
+    if(!hasSuper){toast("Você não tem Super");return}
+    payload={type:"super"};
+  }else if(type==="secret"){
+    if(!hasSecret){toast("Você não tem Secreta");return}
+    payload={type:"secret"};
+  }else if(type==="fire"){
+    if(!isFireValid()){toast("Você não tem Fire válido");return}
+    payload={type:"fire",boughtAt:fireBoughtAt};
   }
+  if(!firebaseReady){toast("Offline");return}
+  try{
+    await db.collection("trades").add({
+      from:playerName,to:target,...payload,claimed:false,date:new Date()
+    });
+    if(type==="skin"){
+      owned=owned.filter(i=>i!==payload.skinIndex);
+      if(selected===payload.skinIndex)selected=0;
+    }else if(type==="super") hasSuper=false;
+    else if(type==="secret") hasSecret=false;
+    else if(type==="fire"){hasFire=false;fireBoughtAt=0}
+    save();atualizarBotoesHab();
+    toast("Trade enviado para "+target+"!");
+    hide("tradeScreen");
+  }catch(e){toast("Erro ao enviar")}
 }
 
-saveNameBtn.onclick = () => {
-  const nome = nicknameInput.value.trim();
-  if (nome.length < 1) return alert("Digite um nome!");
-  playerName = nome.substring(0, 12);
-  save();
-  esconderTelaNickname();
-};
-nicknameInput.onkeydown = (e) => { if (e.key === "Enter") saveNameBtn.click(); };
+async function loadIncomingTrades(){
+  const box=document.getElementById("incomingTrades");
+  box.innerHTML="<p style='color:#7eb8d4;font-size:12px'>Carregando trades...</p>";
+  if(!firebaseReady||!playerName){box.innerHTML="";return}
+  try{
+    const snap=await db.collection("trades").where("to","==",playerName).where("claimed","==",false).get();
+    box.innerHTML="";
+    if(snap.empty){box.innerHTML="<p style='color:#64748b;font-size:12px'>Nenhum trade pendente</p>";return}
+    snap.forEach(doc=>{
+      const d=doc.data();
+      const div=document.createElement("div");
+      div.className="trade-row";
+      let desc="";
+      if(d.type==="skin") desc="Skin: "+d.skinName;
+      else if(d.type==="super") desc="Habilidade Super";
+      else if(d.type==="secret") desc="Habilidade Secreta";
+      else desc="Habilidade Fire (2 dias)";
+      
+      div.innerHTML = `
+        <b style="color:#fff">${d.from}</b> → ${desc}<br>
+        <div style="display:flex;gap:12px;margin-top:12px;justify-content:center;align-items:center">
+          <img src="accept.png" class="trade-btn-img" style="height:44px;cursor:pointer">
+          <img src="cancel.png" class="trade-btn-img" style="height:44px;cursor:pointer">
+        </div>
+      `;
+      
+      const imgs = div.querySelectorAll(".trade-btn-img");
+      imgs[0].onclick = async ()=>{
+        if(d.type==="skin"){owned.push(d.skinIndex);owned=[...new Set(owned)]}
+        else if(d.type==="super") hasSuper=true;
+        else if(d.type==="secret") hasSecret=true;
+        else if(d.type==="fire"){hasFire=true;fireBoughtAt=d.boughtAt||Date.now()}
+        await doc.ref.update({claimed:true});
+        save();atualizarBotoesHab();
+        toast("Trade aceito!");
+        loadIncomingTrades();
+      };
+      imgs[1].onclick = async ()=>{
+        await doc.ref.update({claimed:true});
+        toast("Trade recusado");
+        loadIncomingTrades();
+      };
+      box.appendChild(div);
+    });
+  }catch(e){box.innerHTML="<p style='color:#fca5a5'>Erro</p>"}
+}
 
-document.getElementById("changeNickBtn").onclick = () => {
-  esconderConfig();
-  mostrarTelaNickname();
+document.getElementById("sendTradeBtn").onclick=sendTrade;
+
+document.getElementById("changePhotoBtn").onclick=()=>document.getElementById("photoInput").click();
+document.getElementById("photoInput").onchange=e=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement("canvas");c.width=128;c.height=128;
+      const cx=c.getContext("2d");
+      const size=Math.min(img.width,img.height);
+      cx.drawImage(img,(img.width-size)/2,(img.height-size)/2,size,size,0,0,128,128);
+      playerPhoto=c.toDataURL("image/jpeg",0.7);save();updateProfileUI();toast("Foto atualizada!");
+    };
+    img.src=ev.target.result;
+  };
+  reader.readAsDataURL(file);
 };
-document.getElementById("resetGameBtn").onclick = () => {
-  if (confirm("Tem certeza? Você vai perder TUDO!")) {
-    localStorage.clear();
-    location.reload();
+
+document.getElementById("saveNameBtn").onclick=()=>{const n=document.getElementById("nicknameInput").value.trim();if(n.length<1){toast("Digite um nome!");return}playerName=n.substring(0,12);save();hide("nicknameScreen");checkGiftsAndAward();playMusic();checkAndShowLogin()};
+document.getElementById("nicknameInput").onkeydown=e=>{if(e.key==="Enter")document.getElementById("saveNameBtn").click()};
+document.getElementById("changeNickBtn").onclick=()=>{hide("configScreen");show("nicknameScreen");document.getElementById("nicknameInput").value=playerName||""};
+document.getElementById("resetGameBtn").onclick=()=>{if(window.confirm("Tem certeza? Vai perder TUDO!")){localStorage.clear();location.reload()}};
+document.getElementById("buySuperBtn").onclick=()=>{if(hasSuper)return;if(coins<50){toast("Moedas insuficientes!");return}coins-=50;hasSuper=true;save();atualizarBotoesHab();updateMissionProgress("ability",1);toast("🚀 Super desbloqueada!")};
+document.getElementById("buyFireBtn").onclick=()=>{
+  if(isFireValid())return;
+  if(coins<100){toast("Moedas insuficientes!");return}
+  coins-=100;hasFire=true;fireBoughtAt=Date.now();save();atualizarBotoesHab();updateMissionProgress("ability",1);toast("🔥 Fire ativada por 2 dias!");
+};
+document.getElementById("resgatarPresenteBtn").onclick=()=>{hasSecret=true;secretClaimed=true;save();markAwardClaimed();hide("presenteScreen");toast("🎉 Secreta desbloqueada!");updateMissionProgress("ability",1)};
+document.getElementById("musicBtn").onclick=()=>toggleMusic();
+document.getElementById("adminBtn").onclick=()=>{hide("configScreen");document.getElementById("adminPassInput").value="";show("adminPassScreen")};
+document.getElementById("adminPassOk").onclick=()=>{const s=document.getElementById("adminPassInput").value;if(s===ADMIN_PASSWORD){hide("adminPassScreen");show("adminScreen")}else toast("Senha incorreta")};
+document.getElementById("adminPassInput").onkeydown=e=>{if(e.key==="Enter")document.getElementById("adminPassOk").click()};
+document.getElementById("adminGiveCoinsBtn").onclick=()=>{const n=document.getElementById("adminNameInput").value.trim()||playerName;const q=Number(document.getElementById("adminCoinsInput").value)||0;if(q<=0){toast("Quantidade inválida");return}if(n===playerName||!n){coins+=q;save();toast("🎁 +"+q+" moedas!");return}sendGift(n,"coins",q)};
+document.getElementById("adminGiveSuperBtn").onclick=()=>{const n=document.getElementById("adminNameInput").value.trim()||playerName;if(n===playerName||!n){hasSuper=true;save();atualizarBotoesHab();toast("🎁 Super!");return}sendGift(n,"super",1)};
+document.getElementById("adminGiveSecretBtn").onclick=()=>{const n=document.getElementById("adminNameInput").value.trim()||playerName;if(n===playerName||!n){hasSecret=true;save();atualizarBotoesHab();toast("🎁 Secreta!");return}sendGift(n,"secret",1)};
+document.getElementById("adminGiveFireBtn").onclick=()=>{const n=document.getElementById("adminNameInput").value.trim()||playerName;if(n===playerName||!n){hasFire=true;fireBoughtAt=Date.now();save();atualizarBotoesHab();toast("🎁 Fire por 2 dias!");return}sendGift(n,"fire",1)};
+document.getElementById("adminSetLevelBtn").onclick=()=>{const n=document.getElementById("adminNameInput").value.trim()||playerName;const lv=Number(document.getElementById("adminLevelInput").value)||1;if(n===playerName||!n){level=lv;xp=0;save();toast("🎁 Level "+lv);return}sendGift(n,"level",lv)};
+document.getElementById("adminGivePrizeBtn").onclick=async()=>{if(ranking.length===0)await carregarRanking();if(ranking.length===0){toast("Ranking vazio");return}const top=ranking[0].name;if(firebaseReady){try{await db.collection("settings").doc("award").set({name:top,claimed:false,date:new Date()});awardedPlayer=top;toast("👑 Prêmio → "+top)}catch(e){toast("Erro")}}};
+document.getElementById("viewStatsBtn").onclick=()=>{hide("profileScreen");openStats()};
+document.getElementById("viewAchBtn").onclick=()=>{hide("profileScreen");openAchievements()};
+document.getElementById("viewTitlesBtn").onclick=()=>{hide("profileScreen");openTitles()};
+document.getElementById("viewAccBtn").onclick=()=>{hide("profileScreen");openAccessories()};
+document.getElementById("claimLoginBtn").onclick=()=>{const r=getLoginReward();coins+=r;lastLogin=getToday();save();hide("loginScreen");toast("🎁 +"+r+" moedas! Dia "+loginStreak)};
+document.getElementById("useSuperBtn").onclick=()=>startGameWithSuper();
+document.getElementById("useSecretBtn").onclick=()=>startGameWithSecret();
+document.getElementById("useFireBtn").onclick=()=>startGameWithFire();
+document.getElementById("useNoPowerBtn").onclick=()=>{hide("powerSelectScreen");startGameNoPower()};
+document.getElementById("createChallengeBtn").onclick=()=>{const code=btoa(playerName+"|"+stats.best).replace(/=/g,"");document.getElementById("chalCode").innerHTML="Codigo: <b style='color:#fbbf24'>"+code+"</b>"};
+
+async function sendGift(name,type,amount){if(!firebaseReady)return;try{await db.collection("gifts").add({name,type,amount,claimed:false,date:new Date()})}catch(e){}}
+function applyGift(type,amount){
+  if(type==="coins"){coins+=amount;toast("🎁 +"+amount+" moedas")}
+  else if(type==="super"){hasSuper=true;toast("🎁 Super!")}
+  else if(type==="secret"){hasSecret=true;toast("🎁 Secreta!")}
+  else if(type==="fire"){hasFire=true;fireBoughtAt=Date.now();toast("🎁 Fire por 2 dias!")}
+  else if(type==="level"){level=amount;xp=0;toast("🎁 Level "+level)}
+  save();atualizarBotoesHab()
+}
+async function checkGiftsAndAward(){if(!playerName||!firebaseReady)return;try{const snap=await db.collection("gifts").where("name","==",playerName).where("claimed","==",false).get();snap.forEach(async d=>{applyGift(d.data().type,d.data().amount);await d.ref.update({claimed:true})});const a=await db.collection("settings").doc("award").get();if(a.exists){awardedPlayer=a.data().name;if(a.data().name===playerName&&!a.data().claimed){document.getElementById("presenteMsg").innerHTML="Você é o <b>Melhor Jogador</b>!";setTimeout(()=>show("presenteScreen"),700)}}}catch(e){}}
+async function markAwardClaimed(){if(!firebaseReady)return;try{const a=await db.collection("settings").doc("award").get();if(a.exists&&a.data().name===playerName)await a.ref.update({claimed:true})}catch(e){}}
+function checkAndShowLogin(){if(checkLoginReward()){document.getElementById("loginStreak").textContent="Dia "+loginStreak+" de sequência!";document.getElementById("loginReward").textContent="+"+getLoginReward()+" 🪙";show("loginScreen")}}
+
+let state="menu",shopScroll=0,ranking=[],rankingLoading=false;
+function getWeekEnd(){const now=new Date(),day=now.getDay(),days=day===0?7:7-day,end=new Date(now);end.setDate(now.getDate()+days);end.setHours(23,59,59,999);return end}
+function getCountdownText(){const d=getWeekEnd()-new Date(),days=Math.floor(d/864e5),h=Math.floor(d%864e5/36e5);if(days>1)return"Acaba em "+days+" dias";if(days===1)return"Acaba em 1 dia e "+h+"h";return"Acaba em "+h+" horas"}
+
+let bird={x:60,y:300,size:34,vel:0,gravity:.2,jump:-5.2,rotation:0},pipes=[],score=0,pipeGap=155,pipeWidth=60,pipeSpeed=2.1;
+function sound(a){a.currentTime=0;a.play().catch(()=>{})}
+let musicOn=true;const bgMusic=document.getElementById("bgMusic");bgMusic.volume=.45;
+function playMusic(){if(!musicOn)return;bgMusic.play().catch(()=>{})}
+function stopMusic(){bgMusic.pause()}
+function toggleMusic(){musicOn=!musicOn;if(musicOn)playMusic();else stopMusic();toast(musicOn?"🎵 Música ligada":"🔇 Música desligada")}
+
+function rect(x,y,w,h,r,c){ctx.fillStyle=c;ctx.beginPath();if(ctx.roundRect)ctx.roundRect(x*SCALE,y*SCALE,w*SCALE,h*SCALE,r*SCALE);else ctx.rect(x*SCALE,y*SCALE,w*SCALE,h*SCALE);ctx.fill()}
+function background(){ctx.fillStyle="#70c5ce";ctx.fillRect(0,0,W*SCALE,H*SCALE);ctx.fillStyle="#a5e5e8";for(let i=0;i<6;i++){ctx.beginPath();ctx.arc(i*75*SCALE,565*SCALE,40*SCALE,0,Math.PI*2);ctx.fill()}ctx.fillStyle="#ded895";ctx.fillRect(0,590*SCALE,W*SCALE,50*SCALE);ctx.fillStyle="#82cf42";ctx.fillRect(0,590*SCALE,W*SCALE,10*SCALE)}
+
+function drawBird(x,y,size,index,rot=0){
+  ctx.save();ctx.translate((x+size/2)*SCALE,(y+size/2)*SCALE);ctx.rotate(rot);const s=size*SCALE,skin=skins[index];
+  if(skin.special==="rainbow"){const t=Date.now()/300,g=ctx.createLinearGradient(-s/2,-s/2,s/2,s/2);for(let i=0;i<=4;i++)g.addColorStop(i/4,"hsl("+((t*40+i*60)%360)+",100%,55%)");ctx.fillStyle=g;ctx.strokeStyle="#222";ctx.lineWidth=2*SCALE;ctx.beginPath();ctx.ellipse(0,0,s*.43,s*.34,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(s*.18,-s*.12,s*.18,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#111";ctx.beginPath();ctx.arc(s*.23,-s*.12,s*.07,0,Math.PI*2);ctx.fill();ctx.fillStyle="#ff773b";ctx.beginPath();ctx.moveTo(s*.28,s*.02);ctx.lineTo(s*.62,s*.12);ctx.lineTo(s*.28,s*.2);ctx.closePath();ctx.fill();ctx.stroke()}
+  else if(skin.special==="black"||skin.special==="hacker"){ctx.fillStyle=skin.special==="hacker"?"#0a0a0a":"#111";ctx.strokeStyle=skin.special==="hacker"?"#00ff41":"#000";ctx.lineWidth=2*SCALE;ctx.beginPath();ctx.ellipse(0,0,s*.43,s*.34,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(s*.18,-s*.12,s*.18,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#111";ctx.beginPath();ctx.arc(s*.23,-s*.12,s*.07,0,Math.PI*2);ctx.fill();ctx.fillStyle=skin.special==="hacker"?"#00ff41":"#444";ctx.beginPath();ctx.moveTo(s*.28,s*.02);ctx.lineTo(s*.62,s*.12);ctx.lineTo(s*.28,s*.2);ctx.closePath();ctx.fill();ctx.stroke()}
+  else if(skin.special==="red"){
+    ctx.fillStyle="#e53935";ctx.strokeStyle="#7f0000";ctx.lineWidth=2*SCALE;
+    ctx.beginPath();ctx.ellipse(0,0,s*.43,s*.34,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle="#ffffff";ctx.beginPath();ctx.arc(s*.18,-s*.12,s*.18,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle="#ff773b";ctx.beginPath();ctx.moveTo(s*.28,s*.02);ctx.lineTo(s*.62,s*.12);ctx.lineTo(s*.28,s*.2);ctx.closePath();ctx.fill();ctx.stroke();
   }
-};
-document.getElementById("closeConfigBtn").onclick = esconderConfig;
-document.getElementById("closeHabBtn").onclick = esconderHabilidades;
-
-document.getElementById("buySuperBtn").onclick = () => {
-  if (hasSuper) return;
-  if (coins < 50) return alert("Moedas insuficientes!");
-  coins -= 50;
-  hasSuper = true;
-  save();
-  atualizarBotoesHab();
-  alert("🚀 Super desbloqueada!");
-};
-
-document.getElementById("resgatarPresenteBtn").onclick = () => {
-  hasSecret = true;
-  secretClaimed = true;
-  save();
-  esconderPresente();
-  alert("🎉 Habilidade Secreta desbloqueada!\nImunidade 60s + Velocidade 30s");
-};
-document.getElementById("closePresenteBtn").onclick = esconderPresente;
-
-// ================== JOGO ==================
-let state = "menu";
-let shopScroll = 0;
-let ranking = [];
-let rankingLoading = false;
-let isTop1 = false;
-
-// Countdown semanal (reseta a cada domingo)
-function getWeekEnd() {
-  const now = new Date();
-  const day = now.getDay(); // 0 = domingo
-  const daysUntilSunday = day === 0 ? 7 : 7 - day;
-  const end = new Date(now);
-  end.setDate(now.getDate() + daysUntilSunday);
-  end.setHours(23, 59, 59, 999);
-  return end;
+  else if(skin.special==="darkblue"){
+    ctx.fillStyle="#0a192f";ctx.strokeStyle="#1b3a4b";ctx.lineWidth=2*SCALE;
+    ctx.beginPath();ctx.ellipse(0,0,s*.43,s*.34,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(s*.18,-s*.12,s*.18,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.fillStyle="#111";ctx.beginPath();ctx.arc(s*.23,-s*.12,s*.07,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle="#4fc3f7";ctx.beginPath();ctx.moveTo(s*.28,s*.02);ctx.lineTo(s*.62,s*.12);ctx.lineTo(s*.28,s*.2);ctx.closePath();ctx.fill();ctx.stroke();
+  }
+  else{if(index===0&&birdImg.complete&&birdImg.naturalWidth>0)ctx.drawImage(birdImg,-s/2,-s/2,s,s);else{ctx.fillStyle=skin.color;ctx.strokeStyle="#222";ctx.lineWidth=2*SCALE;ctx.beginPath();ctx.ellipse(0,0,s*.43,s*.34,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#fff";ctx.beginPath();ctx.arc(s*.18,-s*.12,s*.18,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle="#111";ctx.beginPath();ctx.arc(s*.23,-s*.12,s*.07,0,Math.PI*2);ctx.fill();ctx.fillStyle="#ff773b";ctx.beginPath();ctx.moveTo(s*.28,s*.02);ctx.lineTo(s*.62,s*.12);ctx.lineTo(s*.28,s*.2);ctx.closePath();ctx.fill();ctx.stroke();ctx.fillStyle="#fff";ctx.beginPath();ctx.ellipse(-s*.12,s*.12,s*.19,s*.10,-.3,0,Math.PI*2);ctx.fill();ctx.stroke()}}
+  const acc=ACCESSORIES.find(a=>a.id===equippedAcc);
+  if(acc&&acc.emoji){ctx.font=(s*.45)+"px Arial";ctx.textAlign="center";ctx.fillText(acc.emoji,0,-s*.45)}
+  ctx.restore();
 }
 
-function getCountdownText() {
-  const end = getWeekEnd();
-  const diff = end - new Date();
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  if (days > 1) return `Acaba em ${days} dias`;
-  if (days === 1) return `Acaba em 1 dia e ${hours}h`;
-  return `Acaba em ${hours} horas`;
-}
-
-let bird = {x:60, y:300, size:34, vel:0, gravity:0.2, jump:-5.2, rotation:0};
-let pipes = [], score = 0;
-const pipeGap = 155, pipeWidth = 60;
-let pipeSpeed = 2.1;
-
-function sound(a) {
-  a.currentTime = 0;
-  a.play().catch(()=>{});
-}
-
-function rect(x, y, w, h, r, color) {
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.roundRect(x * SCALE, y * SCALE, w * SCALE, h * SCALE, r * SCALE);
-  ctx.fill();
-}
-
-function background() {
-  ctx.fillStyle = "#70c5ce";
-  ctx.fillRect(0, 0, W * SCALE, H * SCALE);
-  ctx.fillStyle = "#a5e5e8";
-  for (let i = 0; i < 6; i++) {
+function drawFireTrail(){
+  if(!fireActive)return;
+  for(let i=0;i<3;i++){
+    fireParticles.push({
+      x:bird.x+bird.size/2,
+      y:bird.y+bird.size/2+(Math.random()-0.5)*20,
+      vx:-(3+Math.random()*4),
+      vy:(Math.random()-0.5)*2,
+      life:1,
+      size:4+Math.random()*6
+    });
+  }
+  fireParticles=fireParticles.filter(p=>p.life>0);
+  fireParticles.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;p.life-=0.04;p.size*=0.96;
+    const alpha=p.life;
+    ctx.globalAlpha=alpha;
+    ctx.fillStyle=p.life>0.6?"#ffeb3b":p.life>0.3?"#ff9800":"#ff5722";
     ctx.beginPath();
-    ctx.arc(i * 75 * SCALE, 565 * SCALE, 40 * SCALE, 0, Math.PI * 2);
+    ctx.arc(p.x*SCALE,p.y*SCALE,p.size*SCALE,0,Math.PI*2);
     ctx.fill();
-  }
-  ctx.fillStyle = "#ded895";
-  ctx.fillRect(0, 590 * SCALE, W * SCALE, 50 * SCALE);
-  ctx.fillStyle = "#82cf42";
-  ctx.fillRect(0, 590 * SCALE, W * SCALE, 10 * SCALE);
+  });
+  ctx.globalAlpha=1;
 }
 
-function drawBird(x, y, size, index, rotation = 0) {
-  ctx.save();
-  ctx.translate((x + size / 2) * SCALE, (y + size / 2) * SCALE);
-  ctx.rotate(rotation);
-  const s = size * SCALE;
-  const skin = skins[index];
+function drawPipes(){pipes.forEach(p=>{ctx.fillStyle="#399e25";ctx.fillRect(p.x*SCALE,0,pipeWidth*SCALE,p.top*SCALE);ctx.fillRect(p.x*SCALE,p.bottom*SCALE,pipeWidth*SCALE,(H-p.bottom)*SCALE);ctx.fillStyle="#70d84a";ctx.fillRect((p.x+8)*SCALE,0,12*SCALE,p.top*SCALE);ctx.fillRect((p.x+8)*SCALE,p.bottom*SCALE,12*SCALE,(H-p.bottom)*SCALE);ctx.fillStyle="#24751d";ctx.fillRect((p.x-4)*SCALE,(p.top-16)*SCALE,(pipeWidth+8)*SCALE,16*SCALE);ctx.fillRect((p.x-4)*SCALE,p.bottom*SCALE,(pipeWidth+8)*SCALE,16*SCALE)})}
+function createPipe(){const top=Math.random()*250+50;pipes.push({x:360,top,bottom:top+pipeGap,counted:false})}
+setInterval(()=>{if(state==="playing")createPipe()},1800);
 
-  if (skin.special === "rainbow") {
-    const time = Date.now() / 300;
-    const gradient = ctx.createLinearGradient(-s/2, -s/2, s/2, s/2);
-    for (let i = 0; i <= 4; i++) {
-      gradient.addColorStop(i/4, `hsl(${(time*40 + i*60)%360}, 100%, 55%)`);
+function reset(practice){
+  if(!playerName){show("nicknameScreen");return}
+  practiceMode=!!practice;
+  bird.y=300;bird.vel=0;bird.rotation=0;pipes=[];score=0;pipeSpeed=2.1;
+  superActive=false;superTimer=0;secretActive=false;secretTimer=0;fireActive=false;fireTimer=0;fireParticles=[];
+  if(!practiceMode&&(hasSuper||hasSecret||isFireValid())){
+    document.getElementById("useSuperBtn").style.display=hasSuper?"block":"none";
+    document.getElementById("useSecretBtn").style.display=hasSecret?"block":"none";
+    document.getElementById("useFireBtn").style.display=isFireValid()?"block":"none";
+    show("powerSelectScreen");return;
+  }
+  startGameNoPower();
+}
+function startGameNoPower(){playStartTime=Date.now();playTimeSec=0;state="playing";playMusic()}
+function startGameWithSuper(){hide("powerSelectScreen");superActive=true;superTimer=10;pipeSpeed=3.4;playStartTime=Date.now();playTimeSec=0;state="playing";playMusic()}
+function startGameWithSecret(){hide("powerSelectScreen");secretActive=true;secretTimer=60;pipeSpeed=3.8;setTimeout(()=>{if(secretActive)pipeSpeed=2.8},30000);playStartTime=Date.now();playTimeSec=0;state="playing";playMusic()}
+function startGameWithFire(){hide("powerSelectScreen");fireActive=true;fireTimer=5;pipeSpeed=2.1*20;playStartTime=Date.now();playTimeSec=0;state="playing";playMusic()}
+
+async function enviarPontuacao(p){if(!playerName||!firebaseReady||practiceMode)return;try{const snap=await db.collection("scores").orderBy("score","desc").limit(30).get();let m=0;snap.forEach(d=>{const x=d.data();if(x.name===playerName&&x.score>m)m=x.score});if(p>m)await db.collection("scores").add({name:playerName,score:p,date:new Date()})}catch(e){}}
+
+async function carregarRanking(){
+  rankingLoading=true;ranking=[];
+  if(!firebaseReady){rankingLoading=false;return}
+  try{
+    if(rankingMode==="score"){
+      const snap=await db.collection("scores").orderBy("score","desc").limit(40).get();
+      const m={};snap.forEach(d=>{const x=d.data();if(!m[x.name]||x.score>m[x.name].score)m[x.name]=x});
+      ranking=Object.values(m).sort((a,b)=>b.score-a.score).slice(0,10);
+    }else if(rankingMode==="level"){
+      const snap=await db.collection("players").orderBy("level","desc").limit(15).get();
+      ranking=snap.docs.map(d=>({name:d.data().name,score:d.data().level||1}));
+    }else if(rankingMode==="coins"){
+      const snap=await db.collection("players").orderBy("coins","desc").limit(15).get();
+      ranking=snap.docs.map(d=>({name:d.data().name,score:d.data().coins||0}));
     }
-    ctx.fillStyle = gradient;
-    ctx.strokeStyle = "#222";
-    ctx.lineWidth = 2 * SCALE;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, s*0.43, s*0.34, 0, 0, Math.PI*2);
-    ctx.fill(); ctx.stroke();
-
-    ctx.fillStyle = "#fff";
-    ctx.beginPath(); ctx.arc(s*0.18, -s*0.12, s*0.18, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = "#111";
-    ctx.beginPath(); ctx.arc(s*0.23, -s*0.12, s*0.07, 0, Math.PI*2); ctx.fill();
-
-    ctx.fillStyle = "#ff773b";
-    ctx.beginPath();
-    ctx.moveTo(s*0.28, s*0.02); ctx.lineTo(s*0.62, s*0.12); ctx.lineTo(s*0.28, s*0.2);
-    ctx.closePath(); ctx.fill(); ctx.stroke();
-
-    ctx.fillStyle = "rgba(255,255,255,0.4)";
-    ctx.beginPath(); ctx.ellipse(-s*0.12, s*0.12, s*0.19, s*0.10, -0.3, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-  }
-  else if (skin.special === "black") {
-    ctx.fillStyle = "#111"; ctx.strokeStyle = "#000"; ctx.lineWidth = 2*SCALE;
-    ctx.beginPath(); ctx.ellipse(0,0,s*0.43,s*0.34,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(s*0.18,-s*0.12,s*0.18,0,Math.PI*2); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = "#111"; ctx.beginPath(); ctx.arc(s*0.23,-s*0.12,s*0.07,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = "#444";
-    ctx.beginPath(); ctx.moveTo(s*0.28,s*0.02); ctx.lineTo(s*0.62,s*0.12); ctx.lineTo(s*0.28,s*0.2); ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = "#222";
-    ctx.beginPath(); ctx.ellipse(-s*0.12,s*0.12,s*0.19,s*0.10,-0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
-  }
-  else if (skin.special === "hacker") {
-    ctx.fillStyle = "#0a0a0a"; ctx.strokeStyle = "#00ff41"; ctx.lineWidth = 2*SCALE;
-    ctx.beginPath(); ctx.ellipse(0,0,s*0.43,s*0.34,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = "#00ff41"; ctx.font = `${Math.floor(s*0.13)}px monospace`; ctx.textAlign = "center";
-    ["01","10","11","00","101","010"].forEach((b,i) => {
-      const a = (i/6)*Math.PI*2;
-      ctx.fillText(b, Math.cos(a)*s*0.18, Math.sin(a)*s*0.12 + 3);
-    });
-    ctx.fillStyle = "#ff0033"; ctx.beginPath(); ctx.arc(s*0.18,-s*0.12,s*0.16,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = "#ff5555"; ctx.beginPath(); ctx.arc(s*0.20,-s*0.14,s*0.06,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle = "#00ff41";
-    ctx.beginPath(); ctx.moveTo(s*0.28,s*0.02); ctx.lineTo(s*0.62,s*0.12); ctx.lineTo(s*0.28,s*0.2); ctx.closePath(); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = "#003311";
-    ctx.beginPath(); ctx.ellipse(-s*0.12,s*0.12,s*0.19,s*0.10,-0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
-
-    // Código subindo
-    ctx.fillStyle = "rgba(0,255,65,0.7)";
-    ctx.font = `${Math.floor(s*0.11)}px monospace`;
-    const time = Date.now()/400;
-    for (let i=0;i<5;i++){
-      const offset = (time + i*0.7)%2.5;
-      ctx.globalAlpha = 1 - offset/2.5;
-      ctx.fillText(Math.random()>0.5?"1":"0", (i-2)*s*0.13, -s*0.45 - offset*s*0.35);
-    }
-    ctx.globalAlpha = 1;
-  }
-  else {
-    if (index === 0 && birdImg.complete && birdImg.naturalWidth > 0) {
-      ctx.drawImage(birdImg, -s/2, -s/2, s, s);
-    } else {
-      ctx.fillStyle = skin.color; ctx.strokeStyle = "#222"; ctx.lineWidth = 2*SCALE;
-      ctx.beginPath(); ctx.ellipse(0,0,s*0.43,s*0.34,0,0,Math.PI*2); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(s*0.18,-s*0.12,s*0.18,0,Math.PI*2); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = "#111"; ctx.beginPath(); ctx.arc(s*0.23,-s*0.12,s*0.07,0,Math.PI*2); ctx.fill();
-      ctx.fillStyle = "#ff773b";
-      ctx.beginPath(); ctx.moveTo(s*0.28,s*0.02); ctx.lineTo(s*0.62,s*0.12); ctx.lineTo(s*0.28,s*0.2); ctx.closePath(); ctx.fill(); ctx.stroke();
-      ctx.fillStyle = "#fff";
-      ctx.beginPath(); ctx.ellipse(-s*0.12,s*0.12,s*0.19,s*0.10,-0.3,0,Math.PI*2); ctx.fill(); ctx.stroke();
-    }
-  }
-  ctx.restore();
+    try{const a=await db.collection("settings").doc("award").get();if(a.exists)awardedPlayer=a.data().name}catch(e){}
+    if((ranking.length>0&&ranking[0].name===playerName&&!secretClaimed&&!hasSecret)||(awardedPlayer===playerName&&!secretClaimed))setTimeout(()=>{if(awardedPlayer===playerName)document.getElementById("presenteMsg").innerHTML="Você é o <b>Melhor Jogador</b>!";show("presenteScreen")},600)
+  }catch(e){}
+  rankingLoading=false;
 }
 
-function drawPipes() {
-  pipes.forEach(p => {
-    ctx.fillStyle = "#399e25";
-    ctx.fillRect(p.x*SCALE, 0, pipeWidth*SCALE, p.top*SCALE);
-    ctx.fillRect(p.x*SCALE, p.bottom*SCALE, pipeWidth*SCALE, (H-p.bottom)*SCALE);
-    ctx.fillStyle = "#70d84a";
-    ctx.fillRect((p.x+8)*SCALE, 0, 12*SCALE, p.top*SCALE);
-    ctx.fillRect((p.x+8)*SCALE, p.bottom*SCALE, 12*SCALE, (H-p.bottom)*SCALE);
-    ctx.fillStyle = "#24751d";
-    ctx.fillRect((p.x-4)*SCALE, (p.top-16)*SCALE, (pipeWidth+8)*SCALE, 16*SCALE);
-    ctx.fillRect((p.x-4)*SCALE, p.bottom*SCALE, (pipeWidth+8)*SCALE, 16*SCALE);
+function menu(){
+  background();ctx.textAlign="center";
+  ctx.font="bold "+30*SCALE+"px Arial";ctx.lineWidth=4*SCALE;ctx.strokeStyle="#1a3a4a";ctx.fillStyle="#fff";
+  ctx.strokeText("FLAPPY BIRD",180*SCALE,70*SCALE);ctx.fillText("FLAPPY BIRD",180*SCALE,70*SCALE);
+  drawBird(145,88,44,selected);
+  rect(250,6,100,42,12,"#0e3a52");
+  if(playerPhoto){try{const img=new Image();img.src=playerPhoto;if(img.complete)ctx.drawImage(img,256*SCALE,10*SCALE,34*SCALE,34*SCALE)}catch(e){}}
+  ctx.fillStyle="#7dd3fc";ctx.font=11*SCALE+"px Arial";ctx.textAlign="left";
+  ctx.fillText((playerName||"Perfil").substring(0,8),295*SCALE,24*SCALE);
+  ctx.fillStyle="#fbbf24";ctx.font=9*SCALE+"px Arial";ctx.fillText(getTitleName().substring(0,10),295*SCALE,38*SCALE);
+  rect(10,6,42,42,12,"#0e3a52");ctx.fillStyle="#7dd3fc";ctx.font=16*SCALE+"px Arial";ctx.textAlign="center";ctx.fillText("⚙️",31*SCALE,35*SCALE);
+  
+  // Ícone Trade com imagem
+  if(tradeIconImg.complete && tradeIconImg.naturalWidth>0){
+    ctx.drawImage(tradeIconImg,10*SCALE,52*SCALE,42*SCALE,38*SCALE);
+  }else{
+    rect(10,55,42,32,10,"#0e3a52");ctx.fillStyle="#7dd3fc";ctx.font=12*SCALE+"px Arial";ctx.fillText("🔄",31*SCALE,76*SCALE);
+  }
+  
+  // Rules
+  rect(308,55,42,32,10,"#1e3a5f");ctx.fillStyle="#7dd3fc";ctx.font=12*SCALE+"px Arial";ctx.fillText("📜",329*SCALE,76*SCALE);
+
+  const btns=[{y:155,c1:"#15803d",c2:"#22c55e",l:"INICIAR"},{y:200,c1:"#0e7490",c2:"#06b6d4",l:"🎯  TREINO"},{y:245,c1:"#1d4ed8",c2:"#3b82f6",l:"🛒  LOJA"},{y:290,c1:"#b45309",c2:"#f59e0b",l:"🏆  TOP GLOBAL"},{y:335,c1:"#6b21a8",c2:"#a855f7",l:"⚡  HABILIDADES"},{y:380,c1:"#9f1239",c2:"#e11d48",l:"📅  MISSÃO"},{y:425,c1:"#7c2d12",c2:"#ea580c",l:"⚔️  DESAFIO 1v1"}];
+  btns.forEach(b=>{rect(22,b.y,316,40,12,b.c1);rect(26,b.y+3,308,34,10,b.c2)});
+  ctx.fillStyle="#fff";ctx.font="bold "+15*SCALE+"px Arial";ctx.textAlign="center";
+  btns.forEach(b=>ctx.fillText(b.l,180*SCALE,(b.y+27)*SCALE));
+  ctx.font="bold "+13*SCALE+"px Arial";ctx.fillStyle="#fbbf24";ctx.fillText("🪙 "+coins,180*SCALE,485*SCALE);
+  ctx.fillStyle="#7dd3fc";ctx.font="bold "+12*SCALE+"px Arial";ctx.fillText("⭐ Nv."+level+"  XP "+xp+"/"+xpNeeded(level),180*SCALE,508*SCALE);
+}
+
+function rankingScreen(){
+  ctx.fillStyle="#0a1f30";ctx.fillRect(0,0,W*SCALE,H*SCALE);
+  rect(12,10,50,36,10,"#1d4ed8");ctx.textAlign="center";ctx.fillStyle="#fff";ctx.font="bold "+20*SCALE+"px Arial";ctx.fillText("←",37*SCALE,35*SCALE);
+  ctx.font="bold "+18*SCALE+"px Arial";ctx.fillText("TOP GLOBAL",180*SCALE,36*SCALE);
+  const tabs=["score","level","coins"];const labels=["Pontos","Level","Moedas"];
+  tabs.forEach((t,i)=>{
+    const x=20+i*110;
+    rect(x,48,100,28,8,rankingMode===t?"#2563eb":"#0e2a3d");
+    ctx.fillStyle="#fff";ctx.font="bold "+11*SCALE+"px Arial";ctx.fillText(labels[i],(x+50)*SCALE,67*SCALE);
+  });
+  ctx.font=11*SCALE+"px Arial";ctx.fillStyle="#fbbf24";ctx.fillText(getCountdownText(),180*SCALE,95*SCALE);
+  if(rankingLoading){ctx.fillStyle="#94a3b8";ctx.fillText("Carregando...",180*SCALE,300*SCALE);return}
+  if(!firebaseReady){ctx.fillStyle="#94a3b8";ctx.fillText("Ranking offline",180*SCALE,300*SCALE);return}
+  if(ranking.length===0){ctx.fillStyle="#94a3b8";ctx.fillText("Nenhuma pontuação",180*SCALE,300*SCALE);return}
+  ranking.forEach((item,i)=>{
+    const y=110+i*48,isA=awardedPlayer&&item.name===awardedPlayer,isF=i===0,isMe=item.name===playerName;
+    rect(12,y,336,42,10,isF?"#14532d":(isA?"#713f12":"#0e2a3d"));
+    if(isF||isA){ctx.font=14*SCALE+"px Arial";ctx.fillText("👑",28*SCALE,(y+28)*SCALE)}
+    ctx.textAlign="left";ctx.fillStyle="#fff";ctx.font="bold "+12*SCALE+"px Arial";
+    ctx.fillText((isF||isA?"   ":"")+(i+1)+"º "+item.name+(isMe?" (você)":""),40*SCALE,(y+26)*SCALE);
+    if(isF||isA){ctx.font=9*SCALE+"px Arial";ctx.fillStyle="#fbbf24";ctx.fillText("Melhor Jogador",70*SCALE,(y+38)*SCALE)}
+    ctx.textAlign="right";ctx.fillStyle="#fbbf24";ctx.font="bold "+12*SCALE+"px Arial";
+    const suffix=rankingMode==="score"?" pts":rankingMode==="level"?" Nv":" 🪙";
+    ctx.fillText(item.score+suffix,334*SCALE,(y+26)*SCALE);
   });
 }
 
-function createPipe() {
-  const top = Math.random()*250 + 50;
-  pipes.push({x:360, top, bottom:top+pipeGap, counted:false});
-}
-setInterval(() => { if (state === "playing") createPipe(); }, 1800);
-
-function reset() {
-  if (!playerName) {
-    mostrarTelaNickname();
-    return;
-  }
-  bird.y = 300; bird.vel = 0; bird.rotation = 0;
-  pipes = []; score = 0;
-  pipeSpeed = 2.1;
-  superActive = false; superTimer = 0;
-  secretActive = false; secretTimer = 0;
-  speedBoost = false;
-  state = "playing";
-
-  // Pergunta se quer usar Super
-  if (hasSuper && confirm("Usar habilidade SUPER nesta partida?\n(+velocidade + imunidade 10s)")) {
-    superActive = true;
-    superTimer = 10;
-    speedBoost = true;
-    pipeSpeed = 3.4;
-  }
+function shop(){
+  ctx.fillStyle="#0a1f30";ctx.fillRect(0,0,W*SCALE,H*SCALE);
+  rect(12,10,50,36,10,"#1d4ed8");ctx.textAlign="center";ctx.fillStyle="#fff";ctx.font="bold "+22*SCALE+"px Arial";ctx.fillText("←",37*SCALE,36*SCALE);
+  ctx.font="bold "+22*SCALE+"px Arial";ctx.fillText("LOJA",180*SCALE,36*SCALE);
+  rect(200,48,148,32,10,"#0e3a52");ctx.fillStyle="#fbbf24";ctx.font="bold "+14*SCALE+"px Arial";ctx.fillText("🪙 "+coins,274*SCALE,70*SCALE);
+  ctx.save();ctx.beginPath();ctx.rect(0,90*SCALE,W*SCALE,500*SCALE);ctx.clip();
+  skins.forEach((s,i)=>{
+    const y=95+i*70-shopScroll;if(y<15||y>580)return;
+    rect(12,y,336,60,12,"#0e2a3d");
+    ctx.strokeStyle=i===selected?"#4ade80":"rgba(0,160,220,.2)";ctx.lineWidth=(i===selected?2:1)*SCALE;
+    ctx.strokeRect(13*SCALE,(y+1)*SCALE,334*SCALE,58*SCALE);
+    drawBird(22,y+10,34,i);
+    const rar=getRarity(s.price);
+    ctx.textAlign="left";ctx.fillStyle="#fff";ctx.font="bold "+13*SCALE+"px Arial";ctx.fillText(s.name,68*SCALE,(y+20)*SCALE);
+    ctx.font=10*SCALE+"px Arial";ctx.fillStyle=rar.color;ctx.fillText(rar.name,68*SCALE,(y+36)*SCALE);
+    ctx.font=11*SCALE+"px Arial";ctx.fillStyle="#7eb8d4";
+    const has=owned.includes(i);
+    ctx.fillText(i===selected?"Selecionado":has?"Comprado":s.price+" 🪙",68*SCALE,(y+52)*SCALE);
+    rect(240,y+12,94,32,8,i===selected?"#15803d":has?"#0e4a6e":"#16a34a");
+    ctx.fillStyle="#fff";ctx.textAlign="center";ctx.font="bold "+10*SCALE+"px Arial";
+    ctx.fillText(i===selected?"USANDO":has?"USAR":"COMPRAR",287*SCALE,(y+33)*SCALE);
+  });ctx.restore();
 }
 
-// ================== RANKING ==================
-async function enviarPontuacao(pontos) {
-  if (!playerName) return;
-  try {
-    const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(30));
-    const snapshot = await getDocs(q);
-    let melhor = 0;
-    snapshot.forEach(doc => {
-      const d = doc.data();
-      if (d.name === playerName && d.score > melhor) melhor = d.score;
-    });
-    if (pontos > melhor) {
-      await addDoc(collection(db, "scores"), {
-        name: playerName,
-        score: pontos,
-        date: new Date()
-      });
-    }
-  } catch(e) { console.error(e); }
+function gameover(){
+  background();drawPipes();drawBird(bird.x,bird.y,bird.size,selected,bird.rotation);
+  ctx.fillStyle="rgba(5,15,25,.75)";ctx.fillRect(0,0,W*SCALE,H*SCALE);
+  rect(24,110,312,420,18,"#0c2a3d");
+  ctx.textAlign="center";ctx.fillStyle="#fff";ctx.font="bold "+24*SCALE+"px Arial";
+  ctx.fillText(practiceMode?"TREINO FIM":"GAME OVER",180*SCALE,150*SCALE);
+  ctx.font="bold "+18*SCALE+"px Arial";ctx.fillText("Pontos: "+score,180*SCALE,190*SCALE);
+  ctx.fillStyle="#fbbf24";ctx.font="bold "+14*SCALE+"px Arial";ctx.fillText("🪙 "+coins,180*SCALE,220*SCALE);
+  ctx.fillStyle="#7dd3fc";ctx.font="bold "+13*SCALE+"px Arial";ctx.fillText("⭐ Nível "+level,180*SCALE,248*SCALE);
+  ctx.fillStyle="#94a3b8";ctx.font=12*SCALE+"px Arial";ctx.fillText("⏱ "+formatTime(playTimeSec),180*SCALE,275*SCALE);
+  const med=getMedal();if(med){ctx.fillStyle="#fbbf24";ctx.font="bold "+12*SCALE+"px Arial";ctx.fillText("🏅 Medalha "+med.name,180*SCALE,300*SCALE)}
+  rect(48,325,264,40,12,"#16a34a");rect(48,375,264,36,12,"#2563eb");rect(48,420,264,36,12,"#d97706");
+  ctx.fillStyle="#fff";ctx.font="bold "+14*SCALE+"px Arial";
+  ctx.fillText("RESTART",180*SCALE,352*SCALE);ctx.fillText("MENU",180*SCALE,400*SCALE);ctx.fillText("🏆 RANKING",180*SCALE,445*SCALE);
 }
 
-async function carregarRanking() {
-  rankingLoading = true;
-  ranking = [];
-  try {
-    const q = query(collection(db, "scores"), orderBy("score", "desc"), limit(40));
-    const snapshot = await getDocs(q);
-    const melhores = {};
-    snapshot.forEach(doc => {
-      const d = doc.data();
-      if (!melhores[d.name] || d.score > melhores[d.name].score) melhores[d.name] = d;
-    });
-    ranking = Object.values(melhores).sort((a,b) => b.score - a.score).slice(0, 10);
-
-    // Verifica se o jogador é top 1
-    isTop1 = ranking.length > 0 && ranking[0].name === playerName;
-
-    // Se for top 1 e ainda não resgatou o presente
-    if (isTop1 && !secretClaimed && !hasSecret) {
-      setTimeout(() => mostrarPresente(), 600);
-    }
-  } catch(e) { console.error(e); }
-  rankingLoading = false;
-}
-
-// ================== TELAS ==================
-function menu() {
-  background();
-  ctx.textAlign = "center";
-  ctx.font = `bold ${34*SCALE}px Arial`;
-  ctx.lineWidth = 4*SCALE;
-  ctx.strokeStyle = "#222";
-  ctx.fillStyle = "#fff";
-  ctx.strokeText("FLAPPY BIRD", 180*SCALE, 90*SCALE);
-  ctx.fillText("FLAPPY BIRD", 180*SCALE, 90*SCALE);
-
-  drawBird(145, 125, 52, selected);
-
-  // Config
-  rect(300, 10, 48, 40, 10, "#164c64");
-  ctx.fillStyle = "#fff";
-  ctx.font = `${20*SCALE}px Arial`;
-  ctx.fillText("⚙️", 324*SCALE, 38*SCALE);
-
-  // Botões
-  rect(20, 220, 320, 46, 12, "#169e36");
-  rect(24, 224, 312, 38, 9, "#35d354");
-
-  rect(20, 275, 320, 46, 12, "#075ba8");
-  rect(24, 279, 312, 38, 9, "#168bf2");
-
-  rect(20, 330, 320, 46, 12, "#c77d00");
-  rect(24, 334, 312, 38, 9, "#ffb300");
-
-  rect(20, 385, 320, 46, 12, "#8e44ad");
-  rect(24, 389, 312, 38, 9, "#9b59b6");
-
-  ctx.fillStyle = "#fff";
-  ctx.font = `bold ${20*SCALE}px Arial`;
-  ctx.fillText("INICIAR", 180*SCALE, 250*SCALE);
-  ctx.fillText("🛒 LOJA", 180*SCALE, 305*SCALE);
-  ctx.fillText("🏆 TOP GLOBAL", 180*SCALE, 360*SCALE);
-  ctx.fillText("⚡ HABILIDADES", 180*SCALE, 415*SCALE);
-
-  ctx.font = `bold ${17*SCALE}px Arial`;
-  ctx.fillText("🪙 " + coins + " moedas", 180*SCALE, 470*SCALE);
-
-  if (playerName) {
-    ctx.font = `${14*SCALE}px Arial`;
-    ctx.fillStyle = "#cceeff";
-    ctx.fillText("Jogador: " + playerName, 180*SCALE, 500*SCALE);
-  }
-}
-
-function rankingScreen() {
-  ctx.fillStyle = "#07344b";
-  ctx.fillRect(0, 0, W*SCALE, H*SCALE);
-
-  rect(12, 12, 60, 40, 9, "#168bf2");
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#fff";
-  ctx.font = `bold ${24*SCALE}px Arial`;
-  ctx.fillText("←", 42*SCALE, 40*SCALE);
-
-  ctx.font = `bold ${24*SCALE}px Arial`;
-  ctx.fillText("TOP GLOBAL", 180*SCALE, 40*SCALE);
-
-  // Countdown
-  ctx.font = `${13*SCALE}px Arial`;
-  ctx.fillStyle = "#ffdc35";
-  ctx.fillText(getCountdownText(), 180*SCALE, 65*SCALE);
-
-  if (rankingLoading) {
-    ctx.font = `${17*SCALE}px Arial`;
-    ctx.fillStyle = "#fff";
-    ctx.fillText("Carregando...", 180*SCALE, 320*SCALE);
-    return;
-  }
-
-  if (ranking.length === 0) {
-    ctx.fillStyle = "#fff";
-    ctx.fillText("Nenhuma pontuação ainda", 180*SCALE, 320*SCALE);
-    return;
-  }
-
-  ranking.forEach((item, i) => {
-    const y = 85 + i * 46;
-    rect(14, y, 332, 40, 8, i === 0 ? "#1a6b4a" : "#11536a");
-
-    ctx.textAlign = "left";
-    ctx.fillStyle = "#fff";
-    ctx.font = `bold ${15*SCALE}px Arial`;
-    ctx.fillText((i+1) + "º  " + item.name, 28*SCALE, (y+26)*SCALE);
-
-    ctx.textAlign = "right";
-    ctx.fillStyle = "#ffdc35";
-    ctx.fillText(item.score + " pts", 332*SCALE, (y+26)*SCALE);
-  });
-}
-
-function shop() {
-  ctx.fillStyle = "#07344b";
-  ctx.fillRect(0, 0, W*SCALE, H*SCALE);
-  rect(12, 12, 60, 42, 9, "#168bf2");
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#fff";
-  ctx.font = `bold ${26*SCALE}px Arial`;
-  ctx.fillText("←", 42*SCALE, 41*SCALE);
-  ctx.font = `bold ${25*SCALE}px Arial`;
-  ctx.fillText("LOJA", 180*SCALE, 41*SCALE);
-
-  rect(190, 52, 158, 36, 10, "#164c64");
-  ctx.fillStyle = "#ffdc35";
-  ctx.font = `bold ${16*SCALE}px Arial`;
-  ctx.fillText("🪙 " + coins, 269*SCALE, 76*SCALE);
-
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(0, 100*SCALE, W*SCALE, 480*SCALE);
-  ctx.clip();
-
-  skins.forEach((s, i) => {
-    const y = 105 + i*76 - shopScroll;
-    if (y < 30 || y > 590) return;
-
-    rect(12, y, 336, 66, 10, "#11536a");
-    ctx.strokeStyle = i === selected ? "#38f59a" : "#27718a";
-    ctx.lineWidth = (i === selected ? 3 : 1) * SCALE;
-    ctx.strokeRect(13*SCALE, (y+1)*SCALE, 334*SCALE, 64*SCALE);
-
-    drawBird(24, y+14, 36, i);
-
-    ctx.textAlign = "left";
-    ctx.fillStyle = "#fff";
-    ctx.font = `bold ${15*SCALE}px Arial`;
-    ctx.fillText(s.name, 72*SCALE, (y+24)*SCALE);
-    ctx.font = `${13*SCALE}px Arial`;
-    ctx.fillStyle = "#bfeafa";
-    const has = owned.includes(i);
-    ctx.fillText(i === selected ? "Selecionado" : has ? "Comprado" : s.price + " moedas", 72*SCALE, (y+45)*SCALE);
-
-    rect(238, y+15, 96, 34, 7, i === selected ? "#178f53" : has ? "#267d9c" : "#22b84c");
-    ctx.fillStyle = "#fff";
-    ctx.textAlign = "center";
-    ctx.font = `bold ${12*SCALE}px Arial`;
-    ctx.fillText(i === selected ? "USANDO" : has ? "USAR" : "COMPRAR", 286*SCALE, (y+37)*SCALE);
-  });
-  ctx.restore();
-}
-
-function gameover() {
-  background();
-  drawPipes();
-  drawBird(bird.x, bird.y, bird.size, selected, bird.rotation);
-
-  ctx.fillStyle = "rgba(0,0,0,0.65)";
-  ctx.fillRect(0, 0, W*SCALE, H*SCALE);
-  rect(28, 165, 304, 310, 18, "#07374a");
-
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#fff";
-  ctx.font = `bold ${30*SCALE}px Arial`;
-  ctx.fillText("GAME OVER", 180*SCALE, 215*SCALE);
-  ctx.font = `bold ${22*SCALE}px Arial`;
-  ctx.fillText("Pontos: " + score, 180*SCALE, 265*SCALE);
-  ctx.fillText("🪙 Moedas: " + coins, 180*SCALE, 305*SCALE);
-
-  rect(50, 340, 260, 42, 10, "#27b84c");
-  rect(50, 392, 260, 38, 10, "#168bf2");
-  rect(50, 440, 260, 38, 10, "#c77d00");
-
-  ctx.font = `bold ${17*SCALE}px Arial`;
-  ctx.fillText("RESTART", 180*SCALE, 368*SCALE);
-  ctx.fillText("MENU", 180*SCALE, 418*SCALE);
-  ctx.fillText("🏆 TOP GLOBAL", 180*SCALE, 466*SCALE);
-}
-
-function endGame() {
-  if (state !== "playing") return;
-  state = "gameover";
+function endGame(){
+  if(state!=="playing")return;state="gameover";
+  playTimeSec=Math.max(1,Math.floor((Date.now()-playStartTime)/1000));
   sound(hitSound);
-  enviarPontuacao(score);
+  if(!practiceMode){stats.games++;stats.deaths++;stats.total+=score;stats.time+=playTimeSec;if(score>stats.best)stats.best=score;save();enviarPontuacao(score);addXP(score);updateMissionProgress("score",score)}
 }
 
-function update() {
-  // Timers das habilidades
-  if (superActive) {
-    superTimer -= 1/60;
-    if (superTimer <= 0) {
-      superActive = false;
-      speedBoost = false;
-      pipeSpeed = 2.1;
+function update(){
+  if(superActive){superTimer-=1/60;if(superTimer<=0){superActive=false;pipeSpeed=2.1}}
+  if(secretActive){secretTimer-=1/60;if(secretTimer<=0){secretActive=false;pipeSpeed=2.1}}
+  if(fireActive){fireTimer-=1/60;if(fireTimer<=0){fireActive=false;pipeSpeed=2.1;fireParticles=[]}}
+  
+  bird.vel+=bird.gravity;bird.y+=bird.vel;bird.rotation=bird.vel<0?-0.35:bird.vel>2?0.35:0;
+  
+  // Treino agora morre normal
+  const imune=superActive||secretActive;
+  
+  if(imune){
+    if(bird.y<0)bird.y=0;
+    if(bird.y+bird.size>H)bird.y=H-bird.size;
+  }else{
+    if(bird.y<0||bird.y+bird.size>H){endGame();return}
+  }
+  
+  for(const p of pipes){
+    p.x-=pipeSpeed;
+    if(!p.counted&&p.x+pipeWidth<bird.x){
+      p.counted=true;score++;
+      if(!practiceMode){coins++;stats.pipes++;save();sound(scoreSound);updateMissionProgress("coins",1)}
+      else sound(scoreSound);
+    }
+    if(!imune&&bird.x+bird.size-5>p.x&&bird.x+5<p.x+pipeWidth&&(bird.y+5<p.top||bird.y+bird.size-5>p.bottom)){
+      endGame();return;
     }
   }
-  if (secretActive) {
-    secretTimer -= 1/60;
-    if (secretTimer <= 0) {
-      secretActive = false;
-      speedBoost = false;
-      pipeSpeed = 2.1;
-    }
-  }
-
-  bird.vel += bird.gravity;
-  bird.y += bird.vel;
-  bird.rotation = bird.vel < 0 ? -0.35 : bird.vel > 2 ? 0.35 : 0;
-
-  const imune = superActive || secretActive;
-
-  if (!imune && (bird.y < 0 || bird.y + bird.size > H)) {
-    endGame();
-    return;
-  }
-  if (imune) {
-    if (bird.y < 0) bird.y = 0;
-    if (bird.y + bird.size > H) bird.y = H - bird.size;
-  }
-
-  for (const p of pipes) {
-    p.x -= pipeSpeed;
-
-    if (!p.counted && p.x + pipeWidth < bird.x) {
-      p.counted = true;
-      score++;
-      coins++;
-      save();
-      sound(scoreSound);
-    }
-
-    if (!imune && bird.x + bird.size - 5 > p.x && bird.x + 5 < p.x + pipeWidth &&
-       (bird.y + 5 < p.top || bird.y + bird.size - 5 > p.bottom)) {
-      endGame();
-      return;
-    }
-  }
-  pipes = pipes.filter(p => p.x > -pipeWidth);
+  pipes=pipes.filter(p=>p.x>-pipeWidth);
 }
 
-function drawPowerUI() {
-  // Canto direito
-  if (superActive || secretActive) {
-    const texto = secretActive ? `❓ SECRETA` : `🚀 SUPER`;
-    const tempo = secretActive ? Math.ceil(secretTimer) : Math.ceil(superTimer);
-    
-    rect(250, 12, 100, 50, 10, "rgba(0,0,0,0.55)");
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#fff";
-    ctx.font = `bold ${13*SCALE}px Arial`;
-    ctx.fillText(texto, 300*SCALE, 32*SCALE);
-    ctx.fillStyle = "#ffdc35";
-    ctx.font = `bold ${16*SCALE}px Arial`;
-    ctx.fillText(tempo + "s", 300*SCALE, 52*SCALE);
+function drawPowerUI(){
+  if(superActive||secretActive||fireActive){
+    let t,tmp;
+    if(fireActive){t="🔥 FIRE";tmp=Math.ceil(fireTimer)}
+    else if(secretActive){t="❓ SECRETA";tmp=Math.ceil(secretTimer)}
+    else{t="🚀 SUPER";tmp=Math.ceil(superTimer)}
+    rect(248,8,100,44,10,"rgba(0,0,0,.55)");
+    ctx.textAlign="center";ctx.fillStyle="#fff";ctx.font="bold "+11*SCALE+"px Arial";ctx.fillText(t,298*SCALE,26*SCALE);
+    ctx.fillStyle="#fbbf24";ctx.font="bold "+14*SCALE+"px Arial";ctx.fillText(tmp+"s",298*SCALE,44*SCALE);
   }
+  if(practiceMode){rect(10,8,90,28,8,"rgba(6,182,212,.3)");ctx.fillStyle="#67e8f9";ctx.font="bold "+11*SCALE+"px Arial";ctx.textAlign="left";ctx.fillText("🎯 TREINO",18*SCALE,28*SCALE)}
 }
 
-function loop() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  if (state === "menu") menu();
-  if (state === "shop") shop();
-  if (state === "ranking") rankingScreen();
-
-  if (state === "playing") {
-    background();
-    update();
-    drawPipes();
-    drawBird(bird.x, bird.y, bird.size, selected, bird.rotation);
-
-    ctx.textAlign = "center";
-    ctx.font = `bold ${28*SCALE}px Arial`;
-    ctx.lineWidth = 3*SCALE;
-    ctx.strokeStyle = "#222";
-    ctx.fillStyle = "#fff";
-    ctx.strokeText(score, 180*SCALE, 42*SCALE);
-    ctx.fillText(score, 180*SCALE, 42*SCALE);
-
-    ctx.textAlign = "left";
-    ctx.font = `bold ${16*SCALE}px Arial`;
-    ctx.fillText("🪙 " + coins, 10*SCALE, 30*SCALE);
-
+function loop(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  if(state==="menu")menu();
+  if(state==="shop")shop();
+  if(state==="ranking")rankingScreen();
+  if(state==="playing"){
+    background();update();drawPipes();
+    drawFireTrail();
+    drawBird(bird.x,bird.y,bird.size,selected,bird.rotation);
+    ctx.textAlign="center";ctx.font="bold "+26*SCALE+"px Arial";ctx.lineWidth=3*SCALE;ctx.strokeStyle="#1a3a4a";ctx.fillStyle="#fff";
+    ctx.strokeText(score,180*SCALE,40*SCALE);ctx.fillText(score,180*SCALE,40*SCALE);
+    if(!practiceMode){ctx.textAlign="left";ctx.font="bold "+14*SCALE+"px Arial";ctx.fillText("🪙 "+coins,10*SCALE,26*SCALE)}
     drawPowerUI();
   }
-
-  if (state === "gameover") gameover();
+  if(state==="gameover")gameover();
   requestAnimationFrame(loop);
 }
 
-// ================== CONTROLES ==================
-function pos(e) {
-  const r = canvas.getBoundingClientRect();
-  return {
-    x: (e.clientX - r.left) * W / r.width,
-    y: (e.clientY - r.top) * H / r.height
-  };
-}
-
-canvas.addEventListener("pointerdown", e => {
-  e.preventDefault();
-  const {x, y} = pos(e);
-
-  if (state === "menu") {
-    if (x > 295 && x < 355 && y > 5 && y < 55) {
-      mostrarConfig();
-      return;
+function pos(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height}}
+canvas.addEventListener("pointerdown",e=>{
+  e.preventDefault();const{x,y}=pos(e);
+  if(state==="menu"){
+    if(x>248&&x<355&&y>3&&y<52){updateProfileUI();show("profileScreen");return}
+    if(x>5&&x<55&&y>3&&y<52){show("configScreen");return}
+    if(x>300&&x<355&&y>50&&y<95){show("rulesScreen");return}
+    if(x>5&&x<55&&y>50&&y<95){openTradeScreen();return}
+    if(y>150&&y<200)reset(false);
+    else if(y>195&&y<245)reset(true);
+    else if(y>240&&y<290){shopScroll=0;state="shop"}
+    else if(y>285&&y<335){rankingMode="score";state="ranking";carregarRanking()}
+    else if(y>330&&y<380){atualizarBotoesHab();show("habilidadesScreen")}
+    else if(y>375&&y<425){
+      if(!dailyMission)initDailyMission();
+      document.getElementById("missionDesc").textContent=dailyMission.desc;
+      document.getElementById("missionBar").style.width=Math.min(100,(dailyProgress/dailyMission.target)*100)+"%";
+      document.getElementById("missionProgressText").textContent=dailyProgress+" / "+dailyMission.target;
+      document.getElementById("missionReward").textContent="Recompensa: "+dailyMission.reward+" 🪙";
+      document.getElementById("missionStatus").textContent=dailyCompleted?"✅ Completa hoje!":"Em andamento...";
+      document.getElementById("missionStatus").style.color=dailyCompleted?"#4ade80":"#fbbf24";
+      show("missionScreen");
     }
-    if (y > 215 && y < 270) reset();
-    else if (y > 270 && y < 325) { shopScroll = 0; state = "shop"; }
-    else if (y > 325 && y < 380) {
-      state = "ranking";
-      carregarRanking();
-    }
-    else if (y > 380 && y < 435) {
-      mostrarHabilidades();
+    else if(y>420&&y<470){document.getElementById("chalBest").textContent=stats.best;document.getElementById("chalCode").textContent="";show("challengeScreen")}
+    return;
+  }
+  if(state==="shop"){
+    if(x<70&&y<50){state="menu";return}
+    if(y>=90&&y<580){const i=Math.floor((y-95+shopScroll)/70);if(i<0||i>=skins.length)return;
+      if(owned.includes(i)){selected=i;save()}else if(coins>=skins[i].price){coins-=skins[i].price;owned.push(i);selected=i;save();toast("Skin comprada!")}else toast("Moedas insuficientes")}
+    return;
+  }
+  if(state==="ranking"){
+    if(x<70&&y<50){state="menu";return}
+    if(y>45&&y<80){
+      if(x>20&&x<120){rankingMode="score";carregarRanking()}
+      else if(x>130&&x<230){rankingMode="level";carregarRanking()}
+      else if(x>240&&x<340){rankingMode="coins";carregarRanking()}
     }
     return;
   }
-
-  if (state === "shop") {
-    if (x < 75 && y < 60) { state = "menu"; return; }
-    if (y >= 100 && y < 580) {
-      const i = Math.floor((y - 105 + shopScroll) / 76);
-      if (i < 0 || i >= skins.length) return;
-      if (owned.includes(i)) {
-        selected = i;
-        save();
-      } else if (coins >= skins[i].price) {
-        coins -= skins[i].price;
-        owned.push(i);
-        selected = i;
-        save();
-      } else alert("Moedas insuficientes!");
-    }
-    return;
-  }
-
-  if (state === "ranking") {
-    if (x < 80 && y < 60) state = "menu";
-    return;
-  }
-
-  if (state === "playing") {
-    bird.vel = bird.jump;
-    sound(jumpSound);
-    return;
-  }
-
-  if (state === "gameover") {
-    if (x > 40 && x < 320 && y > 335 && y < 385) reset();
-    else if (x > 40 && x < 320 && y > 385 && y < 435) state = "menu";
-    else if (x > 40 && x < 320 && y > 435 && y < 485) {
-      state = "ranking";
-      carregarRanking();
-    }
+  if(state==="playing"){bird.vel=bird.jump;sound(jumpSound);return}
+  if(state==="gameover"){
+    if(x>40&&x<320&&y>320&&y<370)reset(practiceMode);
+    else if(x>40&&x<320&&y>370&&y<415)state="menu";
+    else if(x>40&&x<320&&y>415&&y<460){rankingMode="score";state="ranking";carregarRanking()}
   }
 });
+canvas.addEventListener("wheel",e=>{if(state==="shop")shopScroll=Math.max(0,Math.min(70*skins.length-450,shopScroll+e.deltaY))},{passive:true});
+let touchStartY=null;
+canvas.addEventListener("touchstart",e=>{touchStartY=e.touches[0].clientY},{passive:true});
+canvas.addEventListener("touchend",e=>{if(state!=="shop"||!touchStartY)return;const d=touchStartY-e.changedTouches[0].clientY;if(Math.abs(d)>20)shopScroll=Math.max(0,Math.min(70*skins.length-450,shopScroll+d));touchStartY=null},{passive:true});
 
-canvas.addEventListener("wheel", e => {
-  if (state === "shop") {
-    shopScroll = Math.max(0, Math.min(76 * skins.length - 460, shopScroll + e.deltaY));
-  }
-}, {passive:true});
-
-let touchStartY = null;
-canvas.addEventListener("touchstart", e => { touchStartY = e.touches[0].clientY; }, {passive:true});
-canvas.addEventListener("touchend", e => {
-  if (state !== "shop" || touchStartY === null) return;
-  const diff = touchStartY - e.changedTouches[0].clientY;
-  if (Math.abs(diff) > 20) {
-    shopScroll = Math.max(0, Math.min(76 * skins.length - 460, shopScroll + diff));
-  }
-  touchStartY = null;
-}, {passive:true});
-
-// Início
-if (!playerName) mostrarTelaNickname();
-else {
-  // Verifica se é top 1 para mostrar presente
-  carregarRanking();
-}
-
-save();
-loop();
+try{
+  initDailyMission();
+  if(!playerName)show("nicknameScreen");
+  else{carregarRanking();checkGiftsAndAward();checkAndShowLogin()}
+  save();loop();
+}catch(err){state="menu";loop()}
 </script>
 </body>
-  </html>
+</html>
